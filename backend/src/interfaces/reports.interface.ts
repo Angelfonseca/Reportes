@@ -9,4 +9,6 @@ export interface report {
     teacher_name: string;
     class: string;
     category: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

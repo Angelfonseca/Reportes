@@ -6,7 +6,7 @@
         <span class="col ml-4"></span>
       </div>
       <div class="links">
-        <router-link to="/consulta" class="link">Consulta de alumnos</router-link>
+        <router-link to="/consulta" class="link">Consulta de reportes</router-link>
         <router-link to="/reporte" class="link">Generar reporte</router-link>
         <router-link to="/subir" class="link">Subir alumnos</router-link>
         <router-link to="/modificar" class="link">Modificar alumno</router-link>

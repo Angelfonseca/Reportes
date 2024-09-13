@@ -3,7 +3,7 @@ export interface student {
     nombre: string;
     contrasena: string;
     semestre: string;
-    especialidad: string;
+    grupo: string;
     usuario: string;
     reportes: report[];
 }

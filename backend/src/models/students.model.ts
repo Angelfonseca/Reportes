@@ -8,7 +8,7 @@ const studentSchema = new Schema<student & Document>({
     nombre: { type: String, required: true },
     contrasena: { type: String, required: true },
     semestre: { type: String, required: true },
-    especialidad: { type: String, required: true },
+    grupo: { type: String, required: true },
     usuario: { type: String, required: true },
     reportes: [{ type: Schema.Types.ObjectId, ref: 'reports', default: [] }]
 });

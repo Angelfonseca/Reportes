@@ -25,8 +25,8 @@
             </select>
           </div>
           <div class="form-group-left">
-            <label for="especialidad">Especialidad:</label>
-            <input type="text" class="form-control" id="especialidad" v-model="student.especialidad" />
+            <label for="grupo">Grupo:</label>
+            <input type="text" class="form-control" id="grupo" v-model="student.grupo" />
           </div>
         </div>
         <div class="form-row">
@@ -39,7 +39,7 @@
             <!-- Template action moved here -->
             <div class="template-action">
               <label>Agregar por plantilla Excel:</label>
-              <button class="btn btn-secondary" @click="openTemplateModal" type="button">Abrir Modal</button>
+              <button class="btn btn-secondary" @click="openTemplateModal" type="button">Añadir por plantilla</button>
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default {
       nombre: '',
       contrasena: '',
       semestre: '',
-      especialidad: '',
+      grupo: '',
       identificador: ''
     });
     const file = ref(null);
@@ -92,9 +92,9 @@ export default {
     };
 
     const addStudent = async () => {
-      const { nombre, contrasena, semestre, especialidad, identificador } = student.value;
+      const { nombre, contrasena, semestre, grupo, identificador } = student.value;
       console.log(student.value);
-      if (!nombre || !contrasena || !semestre || !especialidad || !identificador) {
+      if (!nombre || !contrasena || !semestre || !grupo || !identificador) {
         return $toast.error('Por favor llena todos los campos.');
       }
 
@@ -102,7 +102,7 @@ export default {
         nombre,
         contrasena,
         semestre,
-        especialidad,
+        grupo,
         usuario: identificador
       };
 
@@ -113,7 +113,7 @@ export default {
           nombre: '',
           contrasena: '',
           semestre: '',
-          especialidad: '',
+          grupo: '',
           identificador: ''
         };
       } catch (error) {
@@ -148,16 +148,16 @@ export default {
         const sheetIndex = 0; // Usar el primer sheet
 
         let df = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[sheetIndex]]);
-        df = df.filter(o => o.Nombre && o.Contraseña && o.Semestre && o.Especialidad && o.Identificador).map(o => ({
+        df = df.filter(o => o.Nombre && o.Contraseña && o.Semestre && o.Grupo && o.Identificador).map(o => ({
           nombre: o.Nombre,
           contrasena: o.Contraseña,
           semestre: o.Semestre,
-          especialidad: o.Especialidad,
+          grupo: o.Grupo,
           usuario: o.Identificador
         }));
 
         if (df.length === 0) {
-          return $toast.error({ text: 'El archivo no contiene datos válidos.' });
+          return $toast.error('El archivo no contiene datos válidos.' );
         }
 
         const errors = [];
@@ -169,9 +169,9 @@ export default {
           }
         }
         if (errors.length > 0) {
-          $toast.error({ text: 'Hubo errores al importar algunos datos.' });
+          $toast.error( 'Hubo errores al importar algunos datos.' );
         } else {
-          $toast.success({ text: 'Los datos fueron importados correctamente.' });
+          $toast.success('Los datos fueron importados correctamente.' );
         }
         templateModalVisible.value = false;
         file.value = null;
@@ -262,28 +262,28 @@ export default {
 .btn-secondary {
   padding: 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 25px;
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background-color: #2E2B75;
   color: #fff;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: #2e2b75e0;
 }
 
 .btn-secondary {
-  background-color: #6c757d;
+  background-color: #28a745;
   color: #fff;
 }
 
 .btn-secondary:hover {
-  background-color: #5a6268;
+  background-color: #218838;
 }
 
 @media (max-width: 768px) {

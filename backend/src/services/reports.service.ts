@@ -22,6 +22,10 @@ const findReportsByStudentId = async (studentId: string) => {
 const findReportsByTeacherId = async (teacherId: string) => {
     return reportsModel.find({ teacher_id: teacherId });
 }
+const getReportsbyDates = async (startDate: Date, endDate: Date) => {
+    return reportsModel.find({ createdAt: { $gte: startDate, $lt: endDate } });
+}
+
 export default {
     createReport,
     getReports,
@@ -29,5 +33,6 @@ export default {
     modifyReport,
     deleteReport,
     findReportsByStudentId,
-    findReportsByTeacherId
+    findReportsByTeacherId,
+    getReportsbyDates
 }

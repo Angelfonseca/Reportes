@@ -25,6 +25,11 @@ const router = createRouter({
         name: 'subir',
         component: () => import('../views/AddUsers.vue')
       },
+      {
+        path: '/modificar',
+        name: 'modificar',
+        component: () => import('../views/ModifyUser.vue')
+      }
       ]
     })
 

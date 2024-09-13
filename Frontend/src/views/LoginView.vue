@@ -2,7 +2,7 @@
     <section class="dark:bg-gray-900 min-h-screen flex flex-col justify-center items-center">
         <div class="flex flex-col items-center mb-6 text-3xl font-semibold text-gray-900 dark:text-white">
             <img class="w-1200 h-1200 mb-3" src="/Logo.png" alt="logo" />
-            <span class="text-3xl font-bold">Gestión de Reportes</span>
+            <span class="text-3xl font-bold">SIGERE</span>
         </div>
         <div
             class="bg-white shadow-lg rounded-lg border dark:bg-gray-800 dark:border-gray-700 max-w-md w-full md:max-w-md lg:max-w-lg xl:max-w-xl">

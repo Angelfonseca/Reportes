@@ -8,5 +8,5 @@ router.get("/", reportsController.getReports);
 router.get("/:id", reportsController.getReportById);
 router.patch("/:id", reportsController.patchupdateReport);
 router.delete("/:id", reportsController.deleteReport);
-
+router.post("/dates", reportsController.getReportsbyDates);
 export default router;

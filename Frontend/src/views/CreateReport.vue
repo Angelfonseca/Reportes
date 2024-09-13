@@ -51,7 +51,15 @@
               required
             ></textarea>
           </div>
-
+          <!-- <div>
+            <label for="nombreMaestro" class="label">Nombre del Docente</label>
+            <input
+              type="text"
+              id="nombreMaestro"
+              class="form-control"
+              required
+            />
+          </div> -->
           <div class="form-group">
             <label for="clase" class="label">Clase:</label>
             <input

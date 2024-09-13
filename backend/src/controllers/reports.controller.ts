@@ -65,6 +65,34 @@ const deleteReport = async (req: Request, res: Response) => {
     }
 }
 
+const getReportsbyDates = async (req: Request, res: Response) => {
+    try {
+        // Obtén y valida las fechas del query
+        const startDateString = req.body.startDate as string;
+        const endDateString = req.body.endDate as string;
+
+        // Verificar si las fechas son válidas
+        if (!startDateString || !endDateString) {
+            return res.status(400).json({ error: 'Por favor proporcione ambas fechas de inicio y fin.' });
+        }
+
+        const startDate: Date = new Date(startDateString);
+        const endDate: Date = new Date(endDateString);
+
+        // Si las fechas no son válidas, retorna un error
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return res.status(400).json({ error: 'El formato de las fechas es inválido.' });
+        }
+
+        // Llama al servicio para obtener los reportes
+        const reports = await reportsService.getReportsbyDates(startDate, endDate);
+
+        res.status(200).json(reports);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 
 export default {
@@ -72,5 +100,6 @@ export default {
     getReports,
     getReportById,
     patchupdateReport,
-    deleteReport
+    deleteReport,
+    getReportsbyDates
 }
