@@ -1,0 +1,238 @@
+.pdf-table-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 90vh;
+    padding: 10px;
+    background-color: #fff; /* Default light background */
+    color: #000; /* Default black text */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 9999;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    box-sizing: border-box;
+  }
+  
+  .sheet {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+  }
+  
+  .signature-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .signature-line {
+    width: 60%;
+    margin: 0 auto;
+    border-bottom: 1px solid #000;
+    height: 1px;
+  }
+  
+  .sheet-body {
+    margin-top: 10px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .sheet-header {
+    text-align: center;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+  }
+  
+  .navlogo {
+    width: 150px;
+    height: auto;
+    margin: 0 auto;
+  }
+  
+  .title {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .date-range,
+  .report-count {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    page-break-inside: auto;
+    margin-bottom: 20px;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  
+  thead {
+    display: table-header-group; /* Ensure header repeats on every page */
+  }
+  
+  tbody {
+    display: table-row-group;
+  }
+  
+  .table-header,
+  .table-cell {
+    padding: 4px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 12px;
+    word-wrap: break-word;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .pdf-button,
+  .close-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 8px 15px;
+    margin: 0 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .pdf-button:hover,
+  .close-button:hover {
+    background-color: #3e8e41;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .prev-button,
+  .next-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .page-number {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 10px;
+    color: #666;
+  }
+  
+  /* Dark mode styles */
+  @media (prefers-color-scheme: dark) {
+    .pdf-table-container {
+      background-color: #333;
+      color: #fff;
+    }
+  
+    .table-header,
+    .table-cell {
+      border: 1px solid #555;
+    }
+  
+    .pdf-button,
+    .close-button {
+      background-color: #4caf50;
+      color: white;
+    }
+  
+    .page-number {
+      color: #ccc;
+    }
+  
+    .date-range,
+    .report-count {
+      color: #aaa;
+    }
+  }
+  
+  /* Responsive design adjustments */
+  @media only screen and (max-width: 1024px) {
+    .pdf-table-container {
+      width: 90vw;
+      height: calc(90vw * (11 / 8.5));
+      padding: 10px;
+      overflow: auto;
+    }
+  
+    .table-header,
+    .table-cell {
+      font-size: 10px;
+      padding: 3px;
+    }
+  
+    .pdf-button,
+    .close-button {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+  
+  @media only screen and (max-width: 768px) {
+    .pdf-table-container {
+      width: 95vw;
+      height: calc(95vw * (11 / 8.5));
+      padding: 10px;
+    }
+  
+    .table-header,
+    .table-cell {
+      font-size: 10px;
+      padding: 3px;
+    }
+  
+    .pdf-button,
+    .close-button {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+  
+  @media only screen and (max-width: 480px) {
+    .pdf-table-container {
+      width: 100vw;
+      height: calc(100vw * (11 / 8.5));
+      padding: 5px;
+    }
+  
+    .table-header,
+    .table-cell {
+      font-size: 8px;
+      padding: 2px;
+    }
+  
+    .pdf-button,
+    .close-button {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+  }
+  

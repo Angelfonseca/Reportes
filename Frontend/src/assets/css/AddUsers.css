@@ -1,0 +1,117 @@
+.title {
+    text-align: center;
+    font-size: 4rem;
+    /* Aumenta el tamaño del título */
+    margin-bottom: 20px;
+    font-family: Jomolhari;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* Espacio entre secciones */
+  }
+  
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .form-group-left,
+  .form-group-right {
+    flex: 1;
+    min-width: 300px;
+    /* Ajuste para columnas responsivas */
+    max-width: 50%;
+    /* Ajuste de ancho */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group-right {
+    margin-top: 20px;
+    /* Espacio superior para separación */
+  }
+  
+  .label {
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    /* Tamaño de etiqueta ajustado */
+    font-weight: bold;
+  }
+  
+  .form-control {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    font-size: 1rem;
+  }
+  
+  .template-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .template-action label {
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+  
+  .errors-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-primary {
+    background-color: #2E2B75;
+    color: #fff;
+  }
+  
+  .btn-primary:hover {
+    background-color: #2e2b75e0;
+  }
+  
+  .btn-secondary {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #218838;
+  }
+  
+  @media (max-width: 768px) {
+    .form-row {
+      flex-direction: column;
+      /* Apila las filas en columnas */
+    }
+  
+    .form-group-left,
+    .form-group-right {
+      min-width: auto;
+      /* Permite que las columnas se ajusten al ancho del contenedor */
+      max-width: 100%;
+      /* Ajusta el ancho en pantallas más pequeñas */
+    }
+  }

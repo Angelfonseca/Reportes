@@ -1,12 +1,14 @@
 import reportsService from "../services/reports.service";
 import { Request, Response } from "express";
 import studentsService from "../services/students.service";
+import { report } from "process";
 
 const createReport = async (req: Request, res: Response) => {
     try {
         const reportDetails = req.body;
-        const newReport = await reportsService.createReport(reportDetails) as { _id: string };
-        const addReportToStudent = await studentsService.addReport(reportDetails.student_id, newReport._id.toString());
+        const { puntos, ...reporteSinPuntos } = reportDetails;
+        const newReport = await reportsService.createReport(reporteSinPuntos) as { _id: string };
+        await studentsService.addReport(reportDetails.student_id, newReport._id, reportDetails.puntos );
         res.status(201).json(newReport);
     } catch (error: any) {
         res.status(500).json({ error: error.message });

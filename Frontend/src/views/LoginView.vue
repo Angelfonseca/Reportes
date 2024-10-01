@@ -39,14 +39,13 @@
                             class="mt-1 block w-full bg-gray-100 border border-gray-300 text-gray-900 rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="••••••••" required />
                     </div>
-                    <button type="submit"
-                    id="Btnlogin"
+                    <button type="submit" id="Btnlogin"
                         class="w-full text-white font-semibold rounded-lg py-2.5 transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-green-300">
                         Ingresar
                     </button>
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         Olvidaste tu contraseña?
-                        <a href="/consulta" class="text-blue-500 hover:underline">Olvidé mi contraseña</a>
+                        <a href="#" class="text-blue-500 hover:underline">Olvidé mi contraseña</a>
                     </p>
                 </form>
             </div>
@@ -55,7 +54,8 @@
 </template>
 <script>
 import { ref } from 'vue';
-import router from '../router';
+import router from '../router/index';
+import apiService from '../services/api.service';
 export default {
     name: 'LoginView',
     data() {
@@ -67,6 +67,25 @@ export default {
             hasError: false
         }
     },
+    methods: {
+        async login() {
+            try {
+                const data = await apiService.post('/estudiantes/auth/login', this.form);
+                console.log(data);
+                if (data && !data.error) {
+                    localStorage.setItem('user', JSON.stringify(data));
+
+                    this.$router.push('/consulta');
+                } else {
+                    this.hasError = true;
+                }
+            } catch (error) {
+                console.error('Error al iniciar sesión:', error);
+                this.hasError = true;
+            }
+        }
+
+    }
 }
 
 </script>

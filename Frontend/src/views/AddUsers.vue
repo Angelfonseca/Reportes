@@ -4,7 +4,6 @@
     <div class="container">
       <form class="form" @submit.prevent="addStudent">
         <div class="form-row">
-          <!-- Columna izquierda con 4 campos -->
           <div class="form-group-left">
             <label for="nombre">Nombre del estudiante:</label>
             <input type="text" class="form-control" id="nombre" v-model="student.nombre" />
@@ -30,13 +29,11 @@
           </div>
         </div>
         <div class="form-row">
-          <!-- Columna derecha con 2 campos y el botón debajo -->
           <div class="form-group-right">
             <label for="identificador">Identificador:</label>
             <input type="text" class="form-control" id="identificador" v-model="student.identificador" />
           </div>
           <div class="form-group-right">
-            <!-- Template action moved here -->
             <div class="template-action">
               <label>Agregar por plantilla Excel:</label>
               <button class="btn btn-secondary" @click="openTemplateModal" type="button">Añadir por plantilla</button>
@@ -59,6 +56,9 @@
         <button class="btn btn-primary" @click="addRecipientsByTemplate">Subir Plantilla</button>
       </template>
     </AddXlsx>
+    <dialog class="errors-modal" v-if="errors">
+      <p v-for="error in errors" :key="error">{{ error }}</p>
+    </dialog>
   </BaseLayout>
 </template>
 
@@ -118,7 +118,7 @@ export default {
         };
       } catch (error) {
         console.error('Error adding student:', error);
-        $toast.error('Hubo un error al añadir el estudiante.');
+        $toast.error('Hubo un error al añadir algunos estudiantes, comprueba si ya existe el identificador.');
       }
     };
 
@@ -133,6 +133,32 @@ export default {
 
     const handleFileUpload = (event) => {
       file.value = event.target.files[0];
+    };
+    const downloadErrorsAsXlsx = (errors) => {
+      const transformedErrors = errors.map(error => ({
+      Nombre: error.nombre,
+      Contraseña: error.contrasena,
+      Semestre: error.semestre,
+      Grupo: error.grupo,
+      Identificador: error.usuario
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(transformedErrors);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Errores');
+
+      // Generar archivo Excel
+      const xlsxData = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+
+      // Crear enlace para descargar el archivo
+      const blob = new Blob([xlsxData], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'errores_estudiantes.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     };
 
     const addRecipientsByTemplate = async () => {
@@ -157,7 +183,7 @@ export default {
         }));
 
         if (df.length === 0) {
-          return $toast.error('El archivo no contiene datos válidos.' );
+          return $toast.error('El archivo no contiene datos válidos.');
         }
 
         const errors = [];
@@ -169,9 +195,11 @@ export default {
           }
         }
         if (errors.length > 0) {
-          $toast.error( 'Hubo errores al importar algunos datos.' );
+          $toast.error('Hubo errores al importar algunos estudiantes, revisa su identificador.');
+          downloadErrorsAsXlsx(errors);
+
         } else {
-          $toast.success('Los datos fueron importados correctamente.' );
+          $toast.success('Los datos fueron importados correctamente.');
         }
         templateModalVisible.value = false;
         file.value = null;
@@ -195,109 +223,5 @@ export default {
 </script>
 
 <style scoped>
-.title {
-  text-align: center;
-  font-size: 4rem;
-  /* Aumenta el tamaño del título */
-  margin-bottom: 20px;
-  font-family: Jomolhari;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  /* Espacio entre secciones */
-}
-
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.form-group-left,
-.form-group-right {
-  flex: 1;
-  min-width: 300px;
-  /* Ajuste para columnas responsivas */
-  max-width: 50%;
-  /* Ajuste de ancho */
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group-right {
-  margin-top: 20px;
-  /* Espacio superior para separación */
-}
-
-.label {
-  margin-bottom: 5px;
-  font-size: 1.1rem;
-  /* Tamaño de etiqueta ajustado */
-  font-weight: bold;
-}
-
-.form-control {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 15px;
-  font-size: 1rem;
-}
-
-.template-action {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.template-action label {
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: 12px;
-  border: none;
-  border-radius: 25px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.btn-primary {
-  background-color: #2E2B75;
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background-color: #2e2b75e0;
-}
-
-.btn-secondary {
-  background-color: #28a745;
-  color: #fff;
-}
-
-.btn-secondary:hover {
-  background-color: #218838;
-}
-
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-    /* Apila las filas en columnas */
-  }
-
-  .form-group-left,
-  .form-group-right {
-    min-width: auto;
-    /* Permite que las columnas se ajusten al ancho del contenedor */
-    max-width: 100%;
-    /* Ajusta el ancho en pantallas más pequeñas */
-  }
-}
+@import '../assets/css/AddUsers.css';
 </style>

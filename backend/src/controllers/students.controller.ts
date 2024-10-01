@@ -1,6 +1,8 @@
 import studentsService from "../services/students.service";
 import { Request, Response } from "express";
 import { student } from "../interfaces/students.interface";
+import path from "path";
+import jwtService from "../utils/jwt.util";
 
 const createStudent = async (req: Request, res: Response) => {
     try {
@@ -53,8 +55,9 @@ const patchupdateStudent = async (req: Request, res: Response) => {
 const addReport = async (req: Request, res: Response) => {
     try {
         const studentId: string = req.params.id;
+        const report = req.body;
         const reportId: string = req.body.reportId;
-        const updatedStudent = await studentsService.addReport(studentId, reportId);
+        const updatedStudent = await studentsService.addReport(studentId, reportId, report.puntos); ;
         if (!updatedStudent) {
             res.status(404).json({ error: "Student not found" });
         } else {
@@ -104,6 +107,57 @@ const getStudentsUsername = async (req: Request, res: Response) => {
     }
 }
 
+const addPicture = async (req: Request, res: Response) => {
+    try {
+        const studentId: string = req.params.id;
+
+        // Verifica si se subió un archivo
+        if (!req.file) {
+            return res.status(400).json({ error: "No image file provided" });
+        }
+
+        // Obtén la ruta del archivo subido
+        const picturePath = path.join('uploads', req.file.filename);
+
+        // Actualiza la base de datos con la URL o ruta de la imagen
+        const updatedStudent = await studentsService.addPicture(studentId, picturePath);
+
+        if (!updatedStudent) {
+            return res.status(404).json({ error: "Student not found" });
+        }
+
+        res.status(200).json(updatedStudent);
+
+    } catch (error: any) {
+        console.error('Error al actualizar la imagen:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const login = async (req: Request, res: Response) => {
+    try {
+        const credentials = req.body;
+        console.log('Received credentials:', credentials);
+
+        const result = await studentsService.login(credentials);
+        console.log('Login result:', result);
+
+        if (result.error) {
+            return res.status(400).json({ message: result.message });
+        }
+
+        const token = await jwtService.createToken(result.user);
+        console.log('Generated token:', token);
+
+        return res.status(200).json({ user: result.user, token });
+
+    } catch (error) {
+        console.error('Error in loginController:', error);
+        return res.status(500).json({ message: 'INTERNAL SERVER ERROR' });
+    }
+};
+
+
 
 export default {
     createStudent,
@@ -113,5 +167,7 @@ export default {
     deleteStudent,
     findUserbyUsername,
     getStudents,
-    getStudentsUsername
+    getStudentsUsername,
+    addPicture,
+    login
 }

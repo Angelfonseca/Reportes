@@ -1,5 +1,7 @@
 import studentsController from "../controllers/students.controller";
 import { Router } from "express";
+import {upload} from "../middlewares/multer.middleware";
+
 
 const router = Router();
 
@@ -11,6 +13,8 @@ router.patch("/report/:id", studentsController.addReport);
 router.delete("/:id", studentsController.deleteStudent);
 router.get("/username/:username", studentsController.findUserbyUsername);
 router.get("/usernames", studentsController.getStudentsUsername);
+router.patch("/picture/:id", upload.single('fotografia'),studentsController.addPicture);
+router.post("/auth/login", studentsController.login);
 
 
 export default router;

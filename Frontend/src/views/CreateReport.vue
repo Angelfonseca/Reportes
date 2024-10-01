@@ -51,15 +51,16 @@
               required
             ></textarea>
           </div>
-          <!-- <div>
-            <label for="nombreMaestro" class="label">Nombre del Docente</label>
+          <div>
+            <label for="puntos" class="label">Valor en puntos</label>
             <input
-              type="text"
-              id="nombreMaestro"
+              type="number"
+              id="puntos"
+              v-model="puntos"
               class="form-control"
               required
             />
-          </div> -->
+          </div> 
           <div class="form-group">
             <label for="clase" class="label">Clase:</label>
             <input
@@ -70,18 +71,6 @@
               required
             />
           </div>
-
-          <div class="form-group">
-            <label for="categoria" class="label">Categoría:</label>
-            <input
-              type="text"
-              id="categoria"
-              v-model="categoria"
-              class="form-control"
-              required
-            />
-          </div>
-
           <!-- Botón para enviar el formulario -->
           <button type="submit" class="submit-button">
             Generar reporte
@@ -104,10 +93,10 @@ const nombreEstudiante = ref('');
 const razonReporte = ref('');
 const clase = ref('');
 let studentId = '';
-const categoria = ref('');
+const categoria = ref('Reporte');
 const user = JSON.parse(localStorage.getItem('user'));
-const toast = useToast(); // Initialize toast
-
+const toast = useToast();
+const puntos = ref(0);
 const filtrarEstudiantes = async () => {
   try {
     if (searchQuery.value.length > 2) {
@@ -127,12 +116,23 @@ const seleccionarEstudiante = (estudiante) => {
   console.log('Estudiante seleccionado:', estudiante.nombre);
   nombreEstudiante.value = estudiante.nombre;
   studentId = estudiante._id;
-  searchQuery.value = ''; // Clear search query after selection
-  estudiantesFiltrados.value = []; // Hide suggestions list after selection
+  searchQuery.value = '';
+  estudiantesFiltrados.value = [];
+  if (estudiante.reportes.length % 3 === 0 && estudiante.reportes.length !== 0) {
+    categoria.value = 'Suspensión';
+    alert('El estudiante será suspendido');
+  } else {
+    categoria.value = 'Reporte';
+  }
+  if (estudiante.puntos <= 50) {
+    alert(`El estudiante tiene ${estudiante.puntos} puntos, tome las medidas necesarias`);
+  }
 };
 
 const generarReporte = () => {
-  if (!nombreEstudiante.value || !razonReporte.value || !clase.value || !categoria.value) {
+  console.log('valores', nombreEstudiante.value, razonReporte.value, clase.value, categoria.value, puntos.value, user.user._id, user.user.nombre
+  );
+  if (!nombreEstudiante.value || !razonReporte.value || !clase.value || !categoria.value || !puntos.value) {
     toast.error('Todos los campos son requeridos');
     return;
   }
@@ -142,9 +142,10 @@ const generarReporte = () => {
     student_name: nombreEstudiante.value,
     reason: razonReporte.value,
     class: clase.value,
+    puntos: parseInt(puntos.value),
     category: categoria.value,
-    teacher_id: user._id,
-    teacher_name: user.name,
+    teacher_id: user.user._id,
+    teacher_name: user.user.nombre,
   };
 
   apiService.post('/reportes', reporte)
@@ -152,8 +153,13 @@ const generarReporte = () => {
       toast.success('Reporte generado exitosamente');
       nombreEstudiante.value = '';
       razonReporte.value = '';
+      puntos.value = '';
       clase.value = '';
-      categoria.value = '';
+    })
+    .then(() => {
+      if (categoria.value === 'Suspensión') {
+        toast.success('El estudiante ha sido suspendido');
+      }
     })
     .catch((error) => {
       console.error('Error al generar reporte:', error);

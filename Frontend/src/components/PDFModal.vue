@@ -15,9 +15,10 @@
                 <thead>
                     <tr>
                         <th>Número de Reporte</th>
-                        <th>Descripción</th>
+                        <th>Razón</th>
                         <th>Maestro</th>
                         <th>Fecha</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -25,7 +26,7 @@
                         <td>{{ index + 1 }}</td>
                         <td>{{ reporte.reason }}</td>
                         <td>{{ reporte.teacher_name }}</td>
-                        <td>{{ new Date(reporte.createdAt).toLocaleDateString() }}</td>
+                        <td>{{ new Date(reporte.createdAt).toLocaleString() }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -74,23 +75,23 @@ export default {
     async mounted() {
         if (this.alumno && this.alumno.reportes) {
             try {
-                // Obtener detalles de cada reporte por su ID
-                const reportesPromises = this.alumno.reportes.map(id => 
+                const reportesPromises = this.alumno.reportes.map(id =>
                     apiService.get(`/reportes/${id}`)
                 );
-                console
                 const reportesResponses = await Promise.all(reportesPromises);
 
-                // Mapear los resultados y guardar en el array de reportes
                 this.reportes = reportesResponses.map(res => res);
 
-                // Mostrar el modal
+                // Cambia la visibilidad del modal cuando los datos estén listos
                 this.visible = true;
             } catch (error) {
                 console.error('Error al buscar los reportes:', error);
             }
+        } else {
+            this.visible = false;
         }
-    },
+    }
+    ,
     methods: {
         closeModal() {
             this.$emit('close');
@@ -112,202 +113,22 @@ export default {
             const buttons = document.querySelector('.pdf-buttons');
             if (buttons) buttons.style.display = 'none';
 
-            html2pdf().from(element).set(options).toPdf().get('pdf').then(pdf => {
+            html2pdf().from(element).set(options).save().then(() => {
                 // Restaurar visibilidad de los botones después de generar el PDF
                 if (buttons) buttons.style.display = 'flex';
-
-                // Ajustar tamaño de página para evitar segunda página en blanco
-                pdf.internal.pageSize.width = pdf.internal.pageSize.width - 0.5;
-
-                pdf.autoPrint();
-                pdf.output('dataurlnewwindow');
+            }).catch(error => {
+                console.error('Error al generar el PDF:', error);
+                // Asegurar que los botones se vuelvan a mostrar si hay un error
+                if (buttons) buttons.style.display = 'flex';
             });
+            
         }
+
     }
 }
 </script>
 
 
 <style scoped>
-/* General overlay styling */
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.navlogo {
-    width: 250px;
-    height: 100px;
-    margin: 0 auto; 
-    justify-content: center;
-    align-items: center;
-    display: flex;
-}
-
-/* Modal styling */
-.sheet {
-    background-color: white;
-    width: 7.5in;
-    /* Ajustado para evitar desbordamiento */
-    height: 10in;
-    /* Ajustado para evitar desbordamiento */
-    margin: 0 auto;
-    /* Centrado horizontal */
-    padding: 1in;
-    /* Espaciado interno */
-    border: 1px solid #ccc;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-    font-family: 'Arial', sans-serif;
-    box-sizing: border-box;
-    /* Incluye padding y border en el tamaño total */
-}
-
-/* Title and date styling */
-.title {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 15px;
-    /* Adjusted spacing */
-}
-
-.date {
-    text-align: right;
-    font-size: 14px;
-    /* Adjusted for better readability */
-    margin-bottom: 20px;
-    /* Adjusted spacing */
-}
-
-/* Table styling */
-.report-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.report-table th,
-.report-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    font-size: 16px;
-    /* Adjusted for readability */
-}
-
-.report-table th {
-    background-color: #f2f2f2;
-    text-align: left;
-}
-
-/* No report message styling */
-.no-report {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 5px;
-    color: #721c24;
-    text-align: center;
-}
-
-/* Signature styling */
-.signature {
-    margin-top: 30px;
-    /* Adjusted spacing */
-    text-align: center;
-}
-
-.signature-line {
-    border-top: 1px solid #000;
-    margin: 10px auto;
-    width: 60%;
-    /* Adjusted width */
-}
-
-/* Button styling */
-.pdf-buttons {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    /* Stack buttons vertically */
-    gap: 10px;
-    align-items: center;
-}
-
-button {
-    padding: 12px 20px;
-    /* Adjusted padding */
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 16px;
-    /* Adjusted font size */
-    width: 100%;
-    /* Full width on mobile */
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-/* Hide buttons in PDF */
-@media print {
-    .sheet {
-        width: 100%;
-        height: auto;
-        margin: 0;
-        padding: 0;
-    }
-}
-
-
-@media (max-width: 780px) {
-    .sheet {
-      width: 90%; /* Adjusted width for mobile */
-      padding: 10px; /* Adjusted padding */
-      font-size: 14px; /* Adjusted font size for mobile */
-    }
-
-    .title {
-      font-size: 18px; /* Adjusted font size for mobile */
-      text-align: center; /* Center title text */
-    }
-
-    .date {
-      font-size: 12px; /* Adjusted font size for mobile */
-      text-align: center; /* Center date text */
-    }
-
-    .report-table {
-      font-size: 12px; /* Adjusted font size for mobile */
-    }
-
-    .report-table th,
-    .report-table td {
-      padding: 5px; /* Adjusted padding for mobile */
-    }
-
-    .signature-line {
-      width: 80%; /* Adjusted width for mobile */
-    }
-
-    .pdf-buttons {
-      flex-direction: row; /* Change button layout to horizontal on mobile */
-      gap: 5px; /* Adjusted gap between buttons */
-    }
-
-    button {
-      padding: 8px 15px; /* Adjusted padding for mobile */
-      font-size: 14px; /* Adjusted font size for mobile */
-    }
-  }
+@import '../assets/componentscss/PDFModal.css';
 </style>

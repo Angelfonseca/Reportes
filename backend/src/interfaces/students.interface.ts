@@ -5,5 +5,7 @@ export interface student {
     semestre: string;
     grupo: string;
     usuario: string;
+    fotografia: string;
     reportes: report[];
+    puntos: number;
 }

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subida de Imágenes</title>
+</head>
+<body>
+    <h1>Subir Imagen de Estudiante</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="fotografia">Seleccionar Imagen:</label>
+        <input type="file" id="fotografia" name="fotografia" accept="image/*" required>
+        <br><br>
+        <button type="submit">Subir Imagen</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const fotografia = document.getElementById('fotografia').files[0];
+
+            formData.append('fotografia', fotografia);
+
+            try {
+                const response = await fetch('http://localhost:5000/api/estudiantes/picture/66edaa5b9b9236c115d1591d', {
+                    method: 'PATCH',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                document.getElementById('response').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('response').innerText = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

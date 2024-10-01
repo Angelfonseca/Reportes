@@ -1,0 +1,240 @@
+/* Overlay para el modal */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto; /* Aseguramos que se pueda hacer scroll si es necesario */
+  z-index: 1000; /* Elevar el overlay sobre otros elementos */
+}
+
+.navlogo {
+  width: 200px; /* Reducimos el tamaño en móviles */
+  height: auto;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+/* Estilos del modal */
+.sheet {
+  background-color: white !important;
+  color: black !important;
+  width: 90%; /* Ajustar al 90% para mayor flexibilidad */
+  max-width: 700px; /* Limitar el ancho máximo para que no se expanda demasiado */
+  height: auto;
+  margin: 0 auto;
+  padding: 1in; /* Mantener el padding */
+  border: 1px solid #ccc;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+  font-family: 'Arial', sans-serif;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+
+/* Títulos y fechas */
+.title {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.date {
+  text-align: right;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* Tabla de reporte */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background-color: #f0f0f0 !important; /* Fondo claro para la cabecera de tabla */
+  color: black !important;  
+  overflow-x: auto; /* Permitir scroll horizontal en tablas si es necesario */
+}
+
+.report-table th,
+.report-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  font-size: 16px;
+  color: black !important;
+}
+
+.report-table th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+/* Mensaje cuando no hay reportes */
+.no-report {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  color: #721c24;
+  text-align: center;
+}
+
+/* Estilo de la firma */
+.signature {
+  margin-top: 30px;
+  text-align: center;
+  color: black !important;
+}
+
+.signature-line {
+  border-top: 1px solid #000;
+  margin: 10px auto;
+  width: 60%;
+}
+
+/* Botones para descargar PDF y cerrar */
+.pdf-buttons {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+button {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  width: 100%;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Ocultar botones al imprimir */
+@media print {
+  .sheet {
+    width: 100%; /* Asegúrate de que ocupe el ancho completo */
+    max-width: none; /* Evitar restricciones de ancho en la impresión */
+    margin: 0;
+    padding: 20px; /* Mantener padding adecuado */
+    box-shadow: none; /* Eliminar sombras */
+    border: none; /* Sin bordes innecesarios */
+  }
+}
+
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 780px) {
+  .sheet {
+    width: 95%; /* Ajustamos el ancho del modal al 95% del viewport */
+    height: auto;
+    padding: 15px;
+  }
+
+  .title {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .date {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .report-table {
+    font-size: 12px;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding: 5px;
+  }
+
+  .signature-line {
+    width: 80%;
+  }
+
+  .pdf-buttons {
+    flex-direction: row;
+    gap: 5px;
+    bottom: 10px; /* Mantenemos margen inferior más pequeño */
+    right: 10px;  /* Mantenemos margen lateral más pequeño */
+  }
+
+  button {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+}
+
+/* Ajustes adicionales para pantallas aún más pequeñas */
+@media (max-width: 480px) {
+  .title {
+    font-size: 16px;
+  }
+
+  .report-table {
+    font-size: 10px;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding: 3px;
+  }
+
+  button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Estilos específicos para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .sheet {
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    border: 1px solid #444;
+  }
+
+  .report-table th {
+    background-color: #333;
+    color: #f5f5f5;
+  }
+
+  .report-table td {
+    border-color: #555;
+  }
+
+  .no-report {
+    background-color: #f5c6cb;
+    color: #1e1e1e;
+  }
+
+  .signature-line {
+    border-color: #f5f5f5;
+  }
+
+  button {
+    background-color: #007bff;
+    color: white;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+}

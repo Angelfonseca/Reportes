@@ -21,8 +21,14 @@ const modifyStudent = async (studentId: string, studentDetails: student) => {
     return studentModel.findByIdAndUpdate(studentId, studentDetails, { new: true });
 }
 
-const addReport = async (studentId: string, reportId: string) => {
-    return studentModel.findByIdAndUpdate(studentId, { $push: { reportes: reportId } }, { new: true });
+
+const addReport = async (studentId: string, report: string, puntos: number) => {
+    const puntosActuales = await studentModel.findById(studentId);
+    if (!puntosActuales) {
+        throw new Error('Student not found');
+    }
+    const newpuntos = puntosActuales.puntos - puntos;
+    return studentModel.findByIdAndUpdate(studentId, { $push: { reportes: report }, puntos: newpuntos }, { new: true });
 }
 
 const deleteStudent = async (studentId: string) => {
@@ -41,7 +47,37 @@ const returnUsernamesandNames = async () => {
     }
 };
 
+const addPicture = async (studentId: string, picture: string) => {
+    return studentModel.findByIdAndUpdate(studentId, { fotografia: picture }, { new: true });
+}
 
+const login = async (credentials: any) => {
+    try {
+        // Buscar usuario por 'usuario'
+        let user = await studentModel.findOne({ usuario: credentials.username });
+        console.log('Checking UserModel:', user);
+
+        // Si no se encuentra el usuario
+        if (!user) {
+            return { error: true, message: 'INVALID CREDENTIALS' };
+        }
+
+        // Usar el método 'comparePassword' directamente
+        const isPasswordMatch = await user.comparePassword(credentials.password);
+        console.log('Password match result:', isPasswordMatch);
+
+        // Si la contraseña no coincide
+        if (!isPasswordMatch) {
+            return { error: true, message: 'INVALID CREDENTIALS' };
+        }
+
+        // Si todo es correcto, devolver el usuario
+        return { error: false, message: 'LOGIN SUCCESSFUL', user };
+    } catch (error) {
+        console.error('Error during login:', error);
+        return { error: true, message: 'INTERNAL SERVER ERROR' };
+    }
+};
 
 export default {
     createStudent,
@@ -51,5 +87,7 @@ export default {
     addReport,
     deleteStudent,
     findUserbyUsername,
-    returnUsernamesandNames
+    returnUsernamesandNames,
+    addPicture,
+    login
 }

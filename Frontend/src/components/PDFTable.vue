@@ -1,10 +1,23 @@
 <template>
-    <div  class="pdf-table-container">
-        <div class="sheet">
+    <div class="pdf-table-container">
+        <!-- Selector de hojas -->
+        <div class="page-selector">
+            <label for="pageSelect">Seleccionar hoja:</label>
+            <select id="pageSelect" v-model="selectedPage" @change="updateCurrentPage">
+                <option v-for="pageNum in totalPages" :key="pageNum" :value="pageNum">
+                    Hoja {{ pageNum }}
+                </option>
+            </select>
+        </div>
+
+        <!-- Contenido de la hoja -->
+        <div class="sheet" v-for="(reports, index) in paginatedReports" :key="index"
+            v-show="index + 1 === selectedPage">
             <div class="sheet-header">
+                <img class="navlogo" src="/navlogo.png" alt="Logo">
                 <h1 class="title">Hoja de reportes por fecha</h1>
                 <p class="date-range">Desde la fecha {{ startDate }}, hasta {{ endDate }}</p>
-                <p class="report-count">N° DE AMONESTACIONES/HOJA: {{ reportes.length }}</p>
+                <p class="report-count">N° DE AMONESTACIONES/HOJA: {{ reports.length }}</p>
             </div>
             <div class="sheet-body">
                 <table class="table">
@@ -15,38 +28,49 @@
                             <th class="table-header">Motivo</th>
                             <th class="table-header">Fecha</th>
                             <th class="table-header">Quien reporta</th>
+                            <th class="table-header">Categoria</th>
                             <th class="table-header">Firma quien reporta</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="reporte in reportesConGrupo" :key="reporte.id" class="table-row">
-                            <td class="table-cell">{{ reporte.grupo }}</td>
-                            <td class="table-cell">{{ reporte.student_name }}</td>
-                            <td class="table-cell">{{ reporte.reason }}</td>
-                            <td class="table-cell">{{ new Date(reporte.createdAt).toLocaleString() }}</td>
-                            <td class="table-cell">{{ reporte.teacher_name }}</td>
-                            <td class="table-cell">{{ reporte.teacher_signature }}</td>
+                        <tr v-for="reporte in reports" :key="reporte.id" class="table-row">
+                            <td class="table-cell" data-label="Grupo">{{ reporte.grupo }}</td>
+                            <td class="table-cell" data-label="Nombre">{{ reporte.student_name }}</td>
+                            <td class="table-cell" data-label="Motivo">{{ reporte.reason }}</td>
+                            <td class="table-cell" data-label="Fecha">{{ new Date(reporte.createdAt).toLocaleString() }}
+                            </td>
+                            <td class="table-cell" data-label="Quien reporta">{{ reporte.teacher_name }}</td>
+                            <td class="table-cell" data-label="Categoria">{{ reporte.category }}</td>
+                            <td class="table-cell" data-label="Firma quien reporta">{{ reporte.teacher_signature }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <div class="signature-section">
+                <div class="signature-line"></div>
+                <p class="signature-text">NOMBRE Y FIRMA DEL ÁREA DE PREFECTURA</p>
+            </div>
         </div>
-        <button class="pdf-button" @click="generatePDF">Descargar como PDF</button>
-        <button class="close-button" @click="$emit('close')">Cerrar</button>
-        <div class="page-number">{{ page }} / {{ pages }}</div>
+
+        <!-- Botones para PDF y Cerrar -->
+        <div class="button-container">
+            <button class="pdf-button" @click="generatePDF">Descargar como PDF</button>
+            <button class="close-button" @click="$emit('close')">Cerrar</button>
+        </div>
     </div>
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import apiService from '../services/api.service';
-import jsPDF from 'jspdf';
 import html2pdf from 'html2pdf.js';
+import jsPDF from 'jspdf';
+
 export default {
     name: 'PDFTable',
     props: {
         reportes: {
-            type: Array,  // Asegúrate de que el tipo de `reportes` sea Array
+            type: Array,
             required: true
         },
         startDate: String,
@@ -54,12 +78,14 @@ export default {
     },
     setup(props) {
         const reportesConGrupo = ref([]);
+        const selectedPage = ref(1);
+        const reportsPerPage = 14; // Número de reportes por hoja
 
-
+        // Función para obtener grupo del estudiante
         const getGrupoDeEstudiante = async (idEstudiante) => {
             try {
                 const response = await apiService.get(`/estudiantes/get/${idEstudiante}`);
-                return response.semestre+response.grupo;
+                return response.semestre + response.grupo;
             } catch (error) {
                 console.error('Error al obtener el grupo del estudiante:', error);
                 return null;
@@ -75,37 +101,73 @@ export default {
             reportesConGrupo.value = reportesConGrupoTemp;
         };
 
-        // Ejecutar cuando cambie la propiedad `reportes`
-        watch(() => props.reportes, agregarGrupoAReportes, { immediate: true });
+        // Dividir los reportes en páginas
+        const paginatedReports = computed(() => {
+            const pages = [];
+            for (let i = 0; i < reportesConGrupo.value.length; i += reportsPerPage) {
+                pages.push(reportesConGrupo.value.slice(i, i + reportsPerPage));
+            }
+            return pages;
+        });
 
-        const generatePDF = () => {
-           
-            const element = document.querySelector('.sheet');
-            const options = {
-                margin: 0.5,
-                filename: `reportes-${props.startDate}-${props.endDate}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
+        const totalPages = computed(() => paginatedReports.value.length);
 
-            const buttons = document.querySelector('.pdf-buttons');
-            if (buttons) buttons.style.display = 'none';
+        const updateCurrentPage = () => {
+            // Actualiza la página seleccionada
+            if (selectedPage.value < 1) {
+                selectedPage.value = 1;
+            } else if (selectedPage.value > totalPages.value) {
+                selectedPage.value = totalPages.value;
+            }
+        };
 
-            html2pdf().from(element).set(options).toPdf().get('pdf').then(pdf => {
-                // Restaurar visibilidad de los botones después de generar el PDF
-                if (buttons) buttons.style.display = 'flex';
+        // Generar PDF
+        const generatePDF = async () => {
+    const sheets = document.querySelectorAll('.sheet');
+    const options = {
+        margin: [0.5, 0.5],
+        filename: `reportes-${props.startDate}-${props.endDate}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
 
-                // Ajustar tamaño de página para evitar segunda página en blanco
-                pdf.internal.pageSize.width = pdf.internal.pageSize.width - 0.5;
+    const buttons = document.querySelector('.button-container');
+    if (buttons) buttons.style.display = 'none';
 
-                pdf.autoPrint();
-                pdf.output('dataurlnewwindow');
-            });
+    const pdf = new jsPDF();
+
+    // Probar solo con la primera hoja para empezar
+    const sheet = sheets[0]; // Cambiar a sheets[i] para iterar
+    try {
+        const canvas = await html2pdf().from(sheet).set(options).toCanvas();
+        if (!canvas) {
+            throw new Error('El canvas no se ha generado correctamente.');
         }
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+    } catch (error) {
+        console.error('Error al generar la imagen del canvas:', error);
+    }
+
+    // Guarda el PDF
+    pdf.save(`reportes-${props.startDate}-${props.endDate}.pdf`);
+
+    // Restaurar estilos originales
+    if (buttons) buttons.style.display = 'flex';
+};
+
+
+
+        // Observar cambios en los reportes
+        watch(() => props.reportes, agregarGrupoAReportes, { immediate: true });
 
         return {
             reportesConGrupo,
+            selectedPage,
+            paginatedReports,
+            totalPages,
+            updateCurrentPage,
             generatePDF
         };
     }
@@ -113,217 +175,32 @@ export default {
 </script>
 
 <style scoped>
-.pdf-table-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 297mm; /* Ancho de una hoja A4 */
-    height: 210mm; /* Alto de una hoja A4 */
-    margin: 0;
-    padding: 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+/* Agrega tus estilos aquí o en un archivo CSS separado */
+@import '../assets/componentscss/PDFTable.css';
+
+/* Puedes agregar un estilo básico para el selector de hojas */
+.page-selector {
+    margin-bottom: 20px;
 }
 
 .sheet {
-    width: 100%;
-    height: 100%;
-    padding: 20mm;
-    box-sizing: border-box;
+    margin-bottom: 40px;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 
-.sheet-header {
+.signature-section {
+    margin-top: 20px;
+}
+
+.signature-line {
+    border-bottom: 1px solid black;
+    width: 200px;
+    margin: auto;
+}
+
+.signature-text {
     text-align: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #ddd;
-}
-
-.title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.date-range {
-    font-size: 18px;
-    color: #666;
-}
-
-.report-count {
-    font-size: 18px;
-    color: #666;
-}
-
-.pdf-button {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.pdf-button:hover {
-    background-color: #3e8e41;
-}
-
-.close-button {
-    position: absolute;
-    bottom: 10px;
-    left: calc(50% + 120px);
-    /* Adjust this value based on the width of the pdf-button */
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.close-button:hover {
-    background-color: #3e8e41;
-}
-
-.close-button:hover {
-    background-color: #3e8e41;
-}
-
-.pdf-button {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.pdf-button:hover {
-    background-color: #3e8e41;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table-header {
-    background-color: #f0f0f0;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-    font-size: 14px;
-}
-
-.table-row {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-.table-cell {
-    padding: 10px;
-    border-right: 1px solid #ddd;
-    text-align: left;
-    font-size: 12px;
-    height: auto;
-}
-
-.table-cell:last-child {
-    border-right: none;
-}
-.page-number {
-    position: absolute;
-    bottom: 10mm;
-    right: 10mm;
-    font-size: 12px;
-    color: #666;
-}
-
-/* Ajustes para impresión en PDF */
-@media print {
-    body {
-        margin: 0;
-        padding: 0;
-        background-color: white;
-    }
-
-    .pdf-table-container {
-        box-shadow: none;
-        border: none;
-        width: 297mm;
-        height: 210mm;
-        margin: 0;
-    }
-}
-
-/* Ajustes para móviles */
-@media only screen and (max-width: 768px) {
-    .pdf-table-container {
-        width: 100%;
-        height: auto;
-        margin: 0;
-        padding: 10px;
-    }
-
-    .sheet {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .sheet-header {
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    .title {
-        font-size: 18px;
-    }
-
-    .date-range {
-        font-size: 14px;
-    }
-
-    .report-count {
-        font-size: 14px;
-    }
-
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .table-header {
-        background-color: #f0f0f0;
-        padding: 5px;
-        border-bottom: 1px solid #ddd;
-        text-align: left;
-        font-size: 12px;
-    }
-
-    .table-row {
-        padding: 5px;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .table-cell {
-        padding: 5px;
-        border-right: 1px solid #ddd;
-        text-align: left;
-        font-size: 12px;
-    }
-
-    .table-cell:last-child {
-        border-right: none;
-    }
+    margin-top: 10px;
 }
 </style>
