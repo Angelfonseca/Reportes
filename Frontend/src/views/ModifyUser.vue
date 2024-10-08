@@ -56,7 +56,7 @@
                     <input type="file" multiple id="fotografias" /> <br>
                 </template>
                 <template v-slot:footer>
-                    <button class="btn btn-primary" @click="subirFotos">Subir Fotografías</button>
+                    <button class="modal-button" @click="subirFotos">Subir Fotografías</button>
                 </template>
             </AddXlsx>
         </div>
@@ -185,6 +185,20 @@ const subirFotos = async () => {
 
 
 <style scoped>
+.modal-button {
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: #28a745;
+    color: #fff;
+    margin-top: 20px;
+}
+.modal-button:hover {
+    background-color: #28a745e0;
+}
 .pics-button {
     padding: 12px;
     border: none;

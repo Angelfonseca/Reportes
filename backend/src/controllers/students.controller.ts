@@ -114,15 +114,18 @@ const addPicture = async (req: Request, res: Response) => {
         if (!req.file) {
             return res.status(400).json({ error: "No image file provided" });
         }
-        const picturePath = path.join(req.file.filename);
-        const updatedStudent = await studentsService.addPicture(studentId, picturePath);
+
+        // Obtén la URL de la imagen firmada
+        const pictureUrl = req.file.path; // Usa req.file.path o req.file.secure_url según la configuración
+
+        // Llama al servicio para actualizar la base de datos
+        const updatedStudent = await studentsService.addPicture(studentId, pictureUrl);
 
         if (!updatedStudent) {
             return res.status(404).json({ error: "Student not found" });
         }
 
         res.status(200).json(updatedStudent);
-
     } catch (error: any) {
         console.error('Error al actualizar la imagen:', error);
         res.status(500).json({ error: error.message });
