@@ -6,12 +6,13 @@
     <title>Subida de Imágenes</title>
 </head>
 <body>
-    <h1>Subir Imagen de Estudiante</h1>
+    <h1>Subir Imágenes de Estudiante</h1>
     <form id="uploadForm" enctype="multipart/form-data">
-        <label for="fotografia">Seleccionar Imagen:</label>
-        <input type="file" id="fotografia" name="fotografia" accept="image/*" required>
+        <label for="fotografias">Seleccionar Imágenes:</label>
+        <input type="file" id="fotografias" name="fotografias" multiple>
+
         <br><br>
-        <button type="submit">Subir Imagen</button>
+        <button type="submit">Subir Imágenes</button>
     </form>
 
     <div id="response"></div>
@@ -20,25 +21,65 @@
         document.getElementById('uploadForm').addEventListener('submit', async function(event) {
             event.preventDefault();
 
-            const formData = new FormData();
-            const fotografia = document.getElementById('fotografia').files[0];
+            const fotografias = document.getElementById('fotografias').files;
 
-            formData.append('fotografia', fotografia);
+            // Función para subir cada fotografía
+            const subirFotosEstudiante = async (fotografias) => {
+                for (let i = 0; i < fotografias.length; i++) {
+                    const fotografia = fotografias[i];
+                    const fotografiaName = fotografia.name.split('.').slice(0, -1).join('.');
+                    
+                    // Crear un nuevo FormData para cada imagen
+                    const formData = new FormData();
+                    formData.append('fotografia', fotografia); // Agregar el archivo a FormData
 
-            try {
-                const response = await fetch('http://localhost:5000/api/estudiantes/picture/66edaa5b9b9236c115d1591d', {
-                    method: 'PATCH',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
+                    try {
+                        // Realizar una solicitud GET para obtener el ID
+                        const response = await fetch(`http://localhost:5000/api/estudiantes/username/${fotografiaName}`);
+                        const data = await response.json();
+
+                        // Comprobar si obtuviste el ID
+                        if (data && data._id) { // Asegúrate de usar _id
+                            // Realizar una solicitud PATCH con el ID obtenido
+                            const postResponse = await fetch(`http://localhost:5000/api/estudiantes/picture/${data._id}`, {
+                                method: 'PATCH',
+                                body: formData, // Enviar FormData aquí
+                            });
+
+                            const postData = await postResponse.json();
+                            console.log('Respuesta del POST:', postData);
+                            
+                            // Mostrar mensaje de éxito
+                            displayMessage(`Imagen ${fotografiaName} subida correctamente.`);
+                        } else {
+                            displayMessage(`Estudiante no encontrado para la imagen ${fotografiaName}.`, true);
+                        }
+                    } catch (error) {
+                        console.error('Error al procesar la fotografía:', error);
+                        // Mostrar mensaje de error
+                        displayMessage(`Error al procesar la imagen ${fotografiaName}.`, true);
                     }
-                });
+                }
+            };
 
-                const result = await response.json();
-                document.getElementById('response').innerText = JSON.stringify(result, null, 2);
-            } catch (error) {
-                document.getElementById('response').innerText = 'Error: ' + error.message;
-            }
+            const displayMessage = (message, isError = false) => {
+                const responseDiv = document.getElementById('response');
+                responseDiv.innerText = message;
+
+                if (isError) {
+                    responseDiv.style.color = 'red';
+                } else {
+                    responseDiv.style.color = 'green';
+                }
+
+                // Mantener el mensaje visible por 5 segundos antes de ocultarlo
+                setTimeout(() => {
+                    responseDiv.innerText = '';
+                }, 5000);
+            };
+
+            // Llama a la función para subir las fotografías
+            await subirFotosEstudiante(fotografias);
         });
     </script>
 </body>

@@ -1,8 +1,8 @@
 
 export interface teacher {
-    name: string;
-    email: string;
-    password: string;
-    identifier: string;
+    nombre: string;
+    contrasena: string;
+    usuario: string;
+    fotografia: string;
     isAdmin: boolean;
 }

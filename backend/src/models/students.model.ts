@@ -17,6 +17,7 @@ const studentSchema = new Schema<studentDocument>({
     usuario: { type: String, required: true },
     fotografia: { type: String, default: 'uploads/userIcon.png' },
     reportes: [{ type: Schema.Types.ObjectId, ref: 'reports', default: [] }],
+    chagePassword: { type: Boolean, default: false },
     puntos: { type: Number, default: 100 }
 });
 

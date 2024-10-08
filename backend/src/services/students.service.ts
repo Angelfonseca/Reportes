@@ -1,5 +1,7 @@
 import studentModel from "../models/students.model";
 import { student } from "../interfaces/students.interface";
+import teacherModel from "../models/teachers.model";
+
 
 const createStudent = async (studentDetails: student) => {
     const otherStudent = await findUserbyUsername(studentDetails.usuario);
@@ -41,7 +43,7 @@ const findUserbyUsername = async (username: string) => {
 
 const returnUsernamesandNames = async () => {
     try {
-        return await studentModel.find({}, { usuario: 1, nombre: 1, _id: 0 }).exec();
+        return await studentModel.find({}, { usuario: 1, nombre: 1, _id: 1 }).exec();
     } catch (error: any) {
         throw new Error('Error fetching students: ' + error.message);
     }
@@ -53,25 +55,29 @@ const addPicture = async (studentId: string, picture: string) => {
 
 const login = async (credentials: any) => {
     try {
-        // Buscar usuario por 'usuario'
         let user = await studentModel.findOne({ usuario: credentials.username });
         console.log('Checking UserModel:', user);
 
-        // Si no se encuentra el usuario
         if (!user) {
-            return { error: true, message: 'INVALID CREDENTIALS' };
+            user =  await teacherModel.findOne({ usuario: credentials.username });
+            console.log('Checking TeacherModel:', user);
+            if (!user) {
+                return { error: true, message: 'INVALID CREDENTIALS' };
+            }
+            const isPasswordMatch = await user.comparePassword(credentials.password);
+            console.log('Password match result:', isPasswordMatch);
+            if (!isPasswordMatch) {
+                return { error: true, message: 'INVALID CREDENTIALS' };
+            }
+            return { error: false, message: 'LOGIN SUCCESSFUL', user };
         }
 
-        // Usar el método 'comparePassword' directamente
         const isPasswordMatch = await user.comparePassword(credentials.password);
         console.log('Password match result:', isPasswordMatch);
 
-        // Si la contraseña no coincide
         if (!isPasswordMatch) {
             return { error: true, message: 'INVALID CREDENTIALS' };
         }
-
-        // Si todo es correcto, devolver el usuario
         return { error: false, message: 'LOGIN SUCCESSFUL', user };
     } catch (error) {
         console.error('Error during login:', error);

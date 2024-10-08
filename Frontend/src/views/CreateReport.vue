@@ -86,12 +86,15 @@ import { ref } from 'vue';
 import { useToast } from 'vue-toast-notification';
 import apiService from '../services/api.service';
 import BaseLayout from '../layout/BaseLayout.vue';
+import {validateJWT, validateAdmin} from '../services/auth.pages';
 
 const searchQuery = ref('');
 const estudiantesFiltrados = ref([]);
 const nombreEstudiante = ref('');
 const razonReporte = ref('');
 const clase = ref('');
+validateJWT();
+validateAdmin();
 let studentId = '';
 const categoria = ref('Reporte');
 const user = JSON.parse(localStorage.getItem('user'));

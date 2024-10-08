@@ -53,9 +53,11 @@
     </section>
 </template>
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import router from '../router/index';
+import { useToast } from 'vue-toast-notification';
 import apiService from '../services/api.service';
+
 export default {
     name: 'LoginView',
     data() {
@@ -74,21 +76,35 @@ export default {
                 console.log(data);
                 if (data && !data.error) {
                     localStorage.setItem('user', JSON.stringify(data));
-
+                    this.$toast.open({
+                        message: 'Inicio de sesión exitoso',
+                        type: 'success'
+                    });
                     this.$router.push('/consulta');
                 } else {
                     this.hasError = true;
+                    this.$toast.open({
+                        message: 'Error al iniciar sesión',
+                        type: 'error'
+                    });
                 }
             } catch (error) {
                 console.error('Error al iniciar sesión:', error);
                 this.hasError = true;
             }
+        },
+        isloggedIn() {
+            if (localStorage.getItem('user')) {
+                this.$router.push('/consulta');
+            }
         }
-
+    },
+    mounted() {
+        this.isloggedIn();
     }
 }
-
 </script>
+
 
 <style scoped>
 #Btnlogin {

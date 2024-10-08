@@ -69,7 +69,11 @@ import apiService from '../services/api.service';
 import BaseLayout from '../layout/BaseLayout.vue';
 import { useToast } from 'vue-toast-notification';
 import AddXlsx from '../components/AddXlsx.vue';
+import {validateJWT, validateAdmin} from '../services/auth.pages';
 
+
+validateAdmin();
+validateJWT();
 export default {
   components: {
     BaseLayout,

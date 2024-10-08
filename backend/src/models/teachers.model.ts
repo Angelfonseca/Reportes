@@ -5,21 +5,21 @@ import bcrypt from 'bcrypt';
 const saltWorkFactor = 10;
 
 const teacherSchema = new Schema<teacher & Document>({
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    identifier: { type: String, required: true },
+    nombre: { type: String, required: true },
+    contrasena: { type: String, required: true },
+    usuario: { type: String, required: true },
+    fotografia: { type: String, default: 'uploads/userIcon.png' },
     isAdmin: {type: Boolean, required: true}
 });
 
 teacherSchema.pre('save', async function (next) {
-    const teacher = this as Document & { password: string };
+    const teacher = this as Document & { contrasena: string };
 
-    if (!teacher.isModified('password')) return next();
+    if (!teacher.isModified('contrasena')) return next();
 
     try {
-        const hash = await bcrypt.hash(teacher.password, saltWorkFactor);
-        teacher.password = hash;
+        const hash = await bcrypt.hash(teacher.contrasena, saltWorkFactor);
+        teacher.contrasena = hash;
         next();
     } catch (error: any) {
         next(error);
@@ -27,8 +27,8 @@ teacherSchema.pre('save', async function (next) {
 });
 
 teacherSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-    const teacher = this as Document & { password: string };
-    return bcrypt.compare(candidatePassword, teacher.password);
+    const teacher = this as Document & { contrasena: string };
+    return bcrypt.compare(candidatePassword, teacher.contrasena);
 };
 
 const teacherModel = model<teacher & Document>('teachers', teacherSchema);

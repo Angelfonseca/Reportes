@@ -13,5 +13,5 @@ const reportSchema = new Schema<report & Document>({
 
 const reportModel = model<report & Document>('reports', reportSchema);
 
-// Example usage to avoid unused variable warning
+
 export default reportModel;

@@ -111,15 +111,10 @@ const addPicture = async (req: Request, res: Response) => {
     try {
         const studentId: string = req.params.id;
 
-        // Verifica si se subió un archivo
         if (!req.file) {
             return res.status(400).json({ error: "No image file provided" });
         }
-
-        // Obtén la ruta del archivo subido
-        const picturePath = path.join('uploads', req.file.filename);
-
-        // Actualiza la base de datos con la URL o ruta de la imagen
+        const picturePath = path.join(req.file.filename);
         const updatedStudent = await studentsService.addPicture(studentId, picturePath);
 
         if (!updatedStudent) {
@@ -155,8 +150,7 @@ const login = async (req: Request, res: Response) => {
         console.error('Error in loginController:', error);
         return res.status(500).json({ message: 'INTERNAL SERVER ERROR' });
     }
-};
-
+}
 
 
 export default {
