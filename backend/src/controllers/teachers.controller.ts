@@ -114,6 +114,22 @@ const uploadImages = async (req: CustomRequest, res: Response) => {
     }
 }
 
+const changePassword = async (req: Request, res: Response) => {
+    try {
+        const teacherId = req.params.id;
+        const newPass = req.body.newPass;
+        const oldPass = req.body.oldPass;
+        const cambioContrasena = req.body.change;
+        const updatedTeacher = await teachersService.changePassword(teacherId, newPass, oldPass, cambioContrasena);
+        if (!updatedTeacher) {
+            res.status(404).json({ error: `Teacher with identifier ${teacherId} not found` });
+        }
+        res.status(200).json(updatedTeacher);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 
 export default {
     createTeacher,
@@ -124,5 +140,6 @@ export default {
     getTeacherByUser,
     uploadImages,
     changePicture,
+    changePassword
     
 }

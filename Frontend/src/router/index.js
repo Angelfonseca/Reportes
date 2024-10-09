@@ -35,6 +35,11 @@ const router = createRouter({
     component: () => import('../views/UnauthorizedView.vue')
     },
     {
+      path: '/configure',
+      name: 'configure',
+      component: () => import('../views/ConfigView.vue')
+    },
+    {
     path: '/404',
     name: 'NotFoundView',
     component: () => import('../views/NotFoundView.vue')

@@ -12,7 +12,7 @@
         <router-link to="/modificar" class="link" v-if="user.user && user.user.isAdmin === true">Modificar alumno</router-link>
         
         <!-- Enlace para configurar el usuario -->
-        <router-link to="/configurar" class="link config-user">
+        <router-link to="/configure" class="link config-user">
           Configurar usuario
         </router-link>
 

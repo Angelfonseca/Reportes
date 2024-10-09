@@ -52,7 +52,8 @@ import { useToast } from 'vue-toast-notification';
 import PDFTable from '../components/PDFTable.vue';
 import moment from 'moment';
 import {validateJWT} from '../services/auth.pages';
-
+import { onMounted } from 'vue';
+import router from '../router/index';
 export default {
   components: {
     BaseLayout,
@@ -71,6 +72,7 @@ export default {
     const reports = ref([]);
     const showReportesModal = ref(false);
     const isLoading = ref(false);
+
     validateJWT();
     const filtrarEstudiantes = async () => {
       try {
@@ -169,6 +171,14 @@ export default {
       searchQuery.value = estudiante.usuario;
       consultarAlumno();
     };
+
+    onMounted(() => {
+      if (!user.user || !user.user.cambioContrasena) {
+        console.log(user.user)
+        $toast.error('Es necesario cambiar la contraseña.');
+        router.push('/configure');
+      }
+    });
 
     return {
       user,

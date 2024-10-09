@@ -155,6 +155,23 @@ const login = async (req: Request, res: Response) => {
     }
 }
 
+const passwordChange = async (req: Request, res: Response) => {
+    try {
+        const studentId: string = req.params.id;
+        const change: boolean = req.body.change;
+        const newPass: string = req.body.newPass;
+        const oldPass: string = req.body.oldPass;
+        const updatedStudent = await studentsService.passwordChange(studentId, change, newPass, oldPass);
+        if (!updatedStudent) {
+            res.status(404).json({ error: "Student not found" });
+        } else {
+            res.status(200).json(updatedStudent);
+        }
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 
 export default {
     createStudent,
@@ -166,5 +183,6 @@ export default {
     getStudents,
     getStudentsUsername,
     addPicture,
-    login
+    login,
+    passwordChange
 }

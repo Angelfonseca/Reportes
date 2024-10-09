@@ -8,5 +8,5 @@ export interface student {
     fotografia: string;
     reportes: report[];
     puntos: number;
-    chagePassword: boolean;
+    cambioContrasena: boolean;
 }

@@ -1,8 +1,9 @@
 import teacherModel from "../models/teachers.model"
-import { teacher } from "../interfaces/teachers.interface"
+import { teacher, TeacherDocument } from "../interfaces/teachers.interface"
 import upload from "../middlewares/picture.middleware";
 import { Request, Response } from "express";
 import studentModel from "../models/students.model";
+import bcrypt from "bcrypt";
 
 const createTeacher = async (teacherDetails: teacher) => {
     const teacher = await teacherModel.findOne({ usuario: teacherDetails.usuario });
@@ -53,6 +54,29 @@ const uploadImagebyImageName = async (images: any) => {
     }
 };
 
+const changePassword = async (teacherId: string, newPass: string, oldPass: string, cambioContrasena: boolean) => {
+    try {
+    const teacher = await teacherModel.findById(teacherId) as TeacherDocument;
+    if (!teacher) {
+        throw new Error(`Teacher with identifier ${teacherId} does not exist`);
+    }
+    if(newPass ==   oldPass){
+        throw new Error(`The new password is the same as the old password`);
+    }
+
+    const isMatch = await teacher.comparePassword(oldPass);
+    if (!isMatch) {
+        throw new Error(`Old password does not match`);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPass, 10);
+    return teacherModel.findByIdAndUpdate(teacherId, { contrasena: hashedPassword, cambioContrasena: cambioContrasena }, { new: true });
+} catch (error: any) {
+    throw new Error(error.message);
+}
+}
+
+
 export default {
     createTeacher,
     getTeachers,
@@ -62,4 +86,5 @@ export default {
     getTeacherByUser,
     uploadImagebyImageName,
     changePicture,
+    changePassword
 }

@@ -1,6 +1,7 @@
 import studentModel from "../models/students.model";
 import { student } from "../interfaces/students.interface";
 import teacherModel from "../models/teachers.model";
+import bcrypt from 'bcrypt';
 
 
 const createStudent = async (studentDetails: student) => {
@@ -85,6 +86,33 @@ const login = async (credentials: any) => {
     }
 };
 
+const passwordChange = async (studentId: string, change: boolean, newPass: string, oldPass: string) => {
+    const student = await studentModel.findById(studentId);
+    if (!student) {
+        throw new Error('Student not found');
+    }
+    if (change) {
+        const isPasswordMatch = await student.comparePassword(oldPass);
+        if (!isPasswordMatch) {
+            throw new Error('Invalid password');
+        }
+        const hashedPassword = await bcrypt.hash(newPass, 10);
+        return studentModel.findByIdAndUpdate(studentId, { cambioContrasena: change, contrasena: hashedPassword }, { new: true });
+    }
+    return studentModel.findByIdAndUpdate(studentId, { cambioContrasena: change }, { new: true });
+}
+
+const findStudentsByIds = async (ids: string[]) => {
+    let students = [];
+    for (const id of ids) {
+        const student = await studentModel.findById(id);
+        if (student) {
+            students.push(student);
+        }
+    }
+    return students;
+}
+
 export default {
     createStudent,
     findStudentById,
@@ -95,5 +123,7 @@ export default {
     findUserbyUsername,
     returnUsernamesandNames,
     addPicture,
-    login
+    login,
+    findStudentsByIds,
+    passwordChange
 }

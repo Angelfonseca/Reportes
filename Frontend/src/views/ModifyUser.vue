@@ -99,6 +99,11 @@ onMounted(async () => {
     } catch (error) {
         errorMessage.value = 'Error al cargar los estudiantes.';
     }
+    if (!user.user || !user.user.cambioContrasena) {
+        console.log(user.user)
+        $toast.error('Es necesario cambiar la contraseña.');
+        router.push('/configure');
+      }
 });
 
 const filterStudents = () => {

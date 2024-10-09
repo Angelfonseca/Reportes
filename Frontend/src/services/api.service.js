@@ -20,6 +20,9 @@ const apiService = {
             }
         };
         return api.post(url, data, config).then(response => response.data);
+    },
+    patch(url, data) {
+        return api.patch(url, data).then(response => response.data);
     }
 }
 

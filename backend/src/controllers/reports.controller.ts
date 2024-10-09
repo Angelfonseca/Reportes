@@ -94,6 +94,36 @@ const getReportsbyDates = async (req: Request, res: Response) => {
         res.status(500).json({ error: error.message });
     }
 };
+const createpdf = async (req: Request, res: Response) => {
+    try {
+        // Obtén y valida las fechas del query
+        const startDateString = req.body.startDate as string;
+        const endDateString = req.body.endDate as string;
+
+        // Verificar si las fechas son válidas
+        if (!startDateString || !endDateString) {
+            return res.status(400).json({ error: 'Por favor proporcione ambas fechas de inicio y fin.' });
+        }
+
+        const startDate: Date = new Date(startDateString);
+        const endDate: Date = new Date(endDateString);
+
+        // Si las fechas no son válidas, retorna un error
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return res.status(400).json({ error: 'El formato de las fechas es inválido.' });
+        }
+
+        // Llama al servicio para obtener los reportes en formato PDF
+        const pdfBuffer = await reportsService.createpdf(startDate, endDate);
+
+        // Configura la respuesta para enviar el PDF como descarga
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
+        res.send(pdfBuffer);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 
 
@@ -103,5 +133,6 @@ export default {
     getReportById,
     patchupdateReport,
     deleteReport,
-    getReportsbyDates
+    getReportsbyDates,
+    createpdf,
 }

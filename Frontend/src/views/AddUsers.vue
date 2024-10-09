@@ -70,7 +70,7 @@ import BaseLayout from '../layout/BaseLayout.vue';
 import { useToast } from 'vue-toast-notification';
 import AddXlsx from '../components/AddXlsx.vue';
 import {validateJWT, validateAdmin} from '../services/auth.pages';
-
+import { onMounted } from 'vue';
 
 validateAdmin();
 validateJWT();
@@ -90,6 +90,7 @@ export default {
     const file = ref(null);
     const templateModalVisible = ref(false);
     const $toast = useToast();
+    const user = JSON.parse(localStorage.getItem('user'));
 
     const openTemplateModal = () => {
       templateModalVisible.value = true;
@@ -211,6 +212,14 @@ export default {
 
       reader.readAsArrayBuffer(file.value);
     };
+
+    onMounted(() => {
+      if (!user.user || !user.user.cambioContrasena) {
+        console.log(user.user)
+        $toast.error('Es necesario cambiar la contraseña.');
+        router.push('/configure');
+      }
+    });
 
     return {
       student,

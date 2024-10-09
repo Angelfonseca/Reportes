@@ -15,6 +15,7 @@ router.get("/username/:username", studentsController.findUserbyUsername);
 router.get("/usernames", studentsController.getStudentsUsername);
 router.patch("/picture/:id", upload.single('fotografia'),studentsController.addPicture);
 router.post("/auth/login", studentsController.login);
+router.patch("/auth/changePassword/:id", studentsController.passwordChange);
 
 
 export default router;

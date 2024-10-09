@@ -9,4 +9,5 @@ router.get("/:id", reportsController.getReportById);
 router.patch("/:id", reportsController.patchupdateReport);
 router.delete("/:id", reportsController.deleteReport);
 router.post("/dates", reportsController.getReportsbyDates);
+router.post("/pdf", reportsController.createpdf);
 export default router;

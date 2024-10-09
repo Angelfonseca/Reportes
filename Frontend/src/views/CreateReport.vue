@@ -87,7 +87,7 @@ import { useToast } from 'vue-toast-notification';
 import apiService from '../services/api.service';
 import BaseLayout from '../layout/BaseLayout.vue';
 import {validateJWT, validateAdmin} from '../services/auth.pages';
-
+import { onMounted } from 'vue';
 const searchQuery = ref('');
 const estudiantesFiltrados = ref([]);
 const nombreEstudiante = ref('');
@@ -167,6 +167,13 @@ const generarReporte = () => {
     .catch((error) => {
       console.error('Error al generar reporte:', error);
       toast.error('Error al generar reporte');
+    });
+    onMounted(() => {
+      if (!user.user || !user.user.cambioContrasena) {
+        console.log(user.user)
+        $toast.error('Es necesario cambiar la contraseña.');
+        router.push('/configure');
+      }
     });
 };
 </script>
