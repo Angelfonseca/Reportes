@@ -1,6 +1,7 @@
 import studentsController from "../controllers/students.controller";
 import { Router } from "express";
 import {upload} from "../middlewares/multer.middleware";
+import ensureAuth from "../middlewares/auth.middleware";
 
 
 const router = Router();
@@ -13,9 +14,10 @@ router.patch("/report/:id", studentsController.addReport);
 router.delete("/:id", studentsController.deleteStudent);
 router.get("/username/:username", studentsController.findUserbyUsername);
 router.get("/usernames", studentsController.getStudentsUsername);
-router.patch("/picture/:id", upload.single('fotografia'),studentsController.addPicture);
+router.post("/picture/:id", upload.single('fotografia'),studentsController.addPicture);
 router.post("/auth/login", studentsController.login);
 router.patch("/auth/changePassword/:id", studentsController.passwordChange);
+router.get("/pdf/:id", studentsController.createpdf);
 
 
 export default router;

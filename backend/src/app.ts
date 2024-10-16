@@ -12,19 +12,11 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+connectDB();
 app.use('/api/estudiantes', studentsRoutes);
 app.use('/api/reportes', reportsRoutes);
 app.use('/uploads', express.static('public/uploads'), ensureAuth);
 app.use('/api/maestros', teachersRoutes);
 
+export {app};
 
-
-const start = async () => {
-    app.listen(port, () => {
-        console.log(`Server running on http://localhost:${port}`);
-    });
-    await connectDB(); 
-    console.log('Database connected');
-}
-
-start();

@@ -9,4 +9,5 @@ export interface student {
     reportes: report[];
     puntos: number;
     cambioContrasena: boolean;
+    fueraSistema: boolean;
 }

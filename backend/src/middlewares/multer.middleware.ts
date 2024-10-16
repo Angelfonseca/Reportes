@@ -14,10 +14,11 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: async (req, file) => {
         console.log(`Subiendo imagen: ${file.originalname}`);
+        const clearName = file.originalname.split('.')[0];
         return {
             folder: 'uploads', // Cambia esto según tu estructura de carpetas
             format: file.mimetype.split('/')[1],
-            public_id: `${Date.now()}-${file.originalname}`,
+            public_id: `${clearName}`,
             transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto:good' }],
             type: 'authenticated',
         };
@@ -32,6 +33,16 @@ const filter = (req: any, file: any, cb: any) => {
         cb(new Error('Invalid file type'), false);
     }
 };
+
+export const deleteImage = async (public_id: string) => {
+    cloudinary.uploader.destroy(public_id, (error, result) => {
+        if (error) {
+            console.error('Error al eliminar imagen:', error);
+        }
+        console.log('Imagen eliminada:', result);
+    });
+}
+
 
 // Exportar middleware
 export const upload = multer({ storage, fileFilter: filter });

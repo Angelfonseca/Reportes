@@ -50,7 +50,7 @@
 
         <!-- Botones para exportar y cerrar -->
         <div class="pdf-buttons">
-            <button @click="exportToPDF">Exportar a PDF</button>
+            <button @click="downloadPdf(alumnoId)">Descargar PDF</button>
             <button @click="closeModal">Cerrar</button>
         </div>
     </div>
@@ -58,75 +58,91 @@
 
 <script>
 import apiService from '../services/api.service';
-import html2pdf from 'html2pdf.js';
 
 export default {
-    name: 'PDFModal',
-    props: {
-        alumno: Object
-    },
-    data() {
-        return {
-            reportes: [], // Array de reportes con detalles
-            visible: false, // Modal inicialmente oculto
-            currentDate: new Date().toLocaleDateString() // Fecha actual
-        };
-    },
-    async mounted() {
-        if (this.alumno && this.alumno.reportes) {
-            try {
-                const reportesPromises = this.alumno.reportes.map(id =>
-                    apiService.get(`/reportes/${id}`)
-                );
-                const reportesResponses = await Promise.all(reportesPromises);
+  name: 'PDFModal',
+  props: {
+    alumno: Object
+  },
+  data() {
+    return {
+      reportes: [], // Array de reportes con detalles
+      visible: false, // Modal inicialmente oculto
+      currentDate: new Date().toLocaleDateString(), // Fecha actual en formato local
+      alumnoId: this.alumno ? this.alumno._id : null // Asegura que se obtenga el ID del alumno si está disponible
+    };
+  },
+  async mounted() {
+    if (this.alumno && this.alumno.reportes) {
+      try {
+        const reportesPromises = this.alumno.reportes.map(id =>
+          apiService.get(`/reportes/${id}`)
+        );
+        const reportesResponses = await Promise.all(reportesPromises);
 
-                this.reportes = reportesResponses.map(res => res);
+        // Asegura que reportes no sea null o undefined
+        this.reportes = reportesResponses.map(res => res) || [];
 
-                // Cambia la visibilidad del modal cuando los datos estén listos
-                this.visible = true;
-            } catch (error) {
-                console.error('Error al buscar los reportes:', error);
-            }
-        } else {
-            this.visible = false;
-        }
+        // Haz visible el modal solo cuando los datos de los reportes estén listos
+        this.visible = true;
+      } catch (error) {
+        console.error('Error al buscar los reportes:', error);
+        this.visible = false;
+      }
+    } else {
+      this.visible = false;
     }
-    ,
-    methods: {
-        closeModal() {
-            this.$emit('close');
-            this.visible = false;
-        },
-        exportToPDF() {
-            if (!this.visible) return; // Evitar exportar si el modal no es visible
+  },
+  methods: {
+    closeModal() {
+      this.$emit('close');
+    },
 
-            const element = document.querySelector('.sheet');
-            const options = {
-                margin: [0.5, 0.5, 0.5, 0.5], // Margen uniforme
-                filename: `Certificado_Historial_Reportes_${this.alumno.nombre || 'Alumno'}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
+    async downloadPdf(alumnoId) {
+  try {
+    // Llamada a la API para obtener el PDF en formato Base64
+    const response = await apiService.get(`/estudiantes/pdf/${alumnoId}`);
+    console.log('Respuesta de la API:', response); // Imprime el contenido base64 completo
 
-            // Temporalmente ocultar los botones antes de generar el PDF
-            const buttons = document.querySelector('.pdf-buttons');
-            if (buttons) buttons.style.display = 'none';
-
-            html2pdf().from(element).set(options).save().then(() => {
-                // Restaurar visibilidad de los botones después de generar el PDF
-                if (buttons) buttons.style.display = 'flex';
-            }).catch(error => {
-                console.error('Error al generar el PDF:', error);
-                // Asegurar que los botones se vuelvan a mostrar si hay un error
-                if (buttons) buttons.style.display = 'flex';
-            });
-            
-        }
-
+    if (!response) {
+      alert('El PDF está vacío o no se recibió correctamente.');
+      return;
     }
+
+    // Usa directamente la cadena Base64, no es necesario usar split
+    const base64Data = response; // No necesitas el split
+    const binaryData = window.atob(base64Data); // Decodifica el Base64
+
+    // Convierte la cadena binaria en un array de bytes
+    const len = binaryData.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryData.charCodeAt(i);
+    }
+
+    // Crea un Blob a partir del array de bytes
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+
+    // Crea una URL temporal para el blob
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reporte_alumno_${alumnoId}.pdf`; // Nombre del archivo generado
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a); // Limpia el DOM después de la descarga
+
+    // Revoca la URL después de un pequeño retraso
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+  } catch (error) {
+    console.error('Error descargando el PDF:', error);
+    alert('Error al descargar el PDF.');
+  }
 }
+  }
+};
 </script>
+
 
 
 <style scoped>

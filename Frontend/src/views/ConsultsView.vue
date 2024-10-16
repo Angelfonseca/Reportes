@@ -43,162 +43,157 @@
   </BaseLayout>
 </template>
 
-<script>
+<script setup>
 import BaseLayout from '../layout/BaseLayout.vue';
-import { ref } from 'vue';
 import PDFModal from '../components/PDFModal.vue';
-import apiService from '../services/api.service';
-import { useToast } from 'vue-toast-notification';
 import PDFTable from '../components/PDFTable.vue';
+import apiService from '../services/api.service';
+import { ref, onMounted } from 'vue';
+import { useToast } from 'vue-toast-notification';
 import moment from 'moment';
-import {validateJWT} from '../services/auth.pages';
-import { onMounted } from 'vue';
+import { validateJWT } from '../services/auth.pages';
 import router from '../router/index';
-export default {
-  components: {
-    BaseLayout,
-    PDFModal,
-    PDFTable
-  },
-  setup() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const searchQuery = ref('');
-    const startDate = ref(moment().subtract(2, 'weeks').format('YYYY-MM-DD'));
-    const endDate = ref(moment().add(2, 'weeks').format('YYYY-MM-DD'));
-    const showModal = ref(false);
-    const alumno = ref({});
-    const filteredEstudiantes = ref([]);
-    const $toast = useToast();
-    const reports = ref([]);
-    const showReportesModal = ref(false);
-    const isLoading = ref(false);
 
-    validateJWT();
-    const filtrarEstudiantes = async () => {
-      try {
-        if (searchQuery.value.length > 2) {
-          const response = await apiService.get('/estudiantes/usernames', {
-            params: { nombre: searchQuery.value },
-          });
-          filteredEstudiantes.value = response.filter((estudiante) => {
-            const nombre = estudiante.nombre.toLowerCase();
-            const usuario = estudiante.usuario.toLowerCase();
-            const searchQueryLower = searchQuery.value.toLowerCase();
-            return nombre.includes(searchQueryLower) || usuario.includes(searchQueryLower);
-          });
-        } else {
-          filteredEstudiantes.value = [];
-        }
-      } catch (error) {
-        console.error('Error al filtrar estudiantes:', error);
-      }
-    };
+const user = JSON.parse(localStorage.getItem('user'));
+const searchQuery = ref('');
+const startDate = ref(moment().subtract(2, 'weeks').format('YYYY-MM-DD'));
+const endDate = ref(moment().add(2, 'weeks').format('YYYY-MM-DD'));
+const showModal = ref(false);
+const alumno = ref({});
+const filteredEstudiantes = ref([]);
+const reports = ref([]);
+const showReportesModal = ref(false);
+const isLoading = ref(false);
+const toast = useToast();
 
-    const consultarAlumno = async () => {
-      if (searchQuery.value.trim() === '') {
-        $toast.error('Por favor ingrese un nombre o ID de alumno.');
-        return;
-      }
+validateJWT();
 
-      try {
-        const response = await apiService.get(`/estudiantes/username/${searchQuery.value}`);
-        console.log(response);
-        if (response) {
-          alumno.value = response;
-          showModal.value = true;
-        } else {
-          $toast.error('No se encontró al alumno.');
-        }
-      } catch (error) {
-        console.error('Error al buscar el alumno:', error);
-        $toast.error('Hubo un error al buscar al alumno.');
-      }
-    };
+const filtrarEstudiantes = async () => {
+  if (searchQuery.value.length <= 2) {
+    filteredEstudiantes.value = [];
+    return;
+  }
 
-    const consultarMiReporte = async () => {
-      const usuario = user.user.usuario;
-      if (usuario.trim() === '') {
-        $toast.error('No se encontró el usuario.');
-        return;
-      }
-
-      try {
-        const response = await apiService.get(`/estudiantes/username/${usuario}`);
-        console.log(response);
-        if (response) {
-          alumno.value = response;
-          showModal.value = true;
-        } else {
-          $toast.error('No se encontró al alumno.');
-        }
-      } catch (error) {
-        console.error('Error al buscar el alumno:', error);
-        $toast.error('Hubo un error al buscar al alumno.');
-      }
-    };
-
-    const consultarReportesPorFechas = async () => {
-      if (!startDate.value || !endDate.value) {
-        $toast.error('Por favor seleccione ambas fechas.');
-        return;
-      }
-
-      if (moment(endDate.value).isBefore(startDate.value)) {
-        $toast.error('La fecha de fin debe ser posterior a la fecha de inicio.');
-        return;
-      }
-
-      try {
-        const response = await apiService.post('/reportes/dates', {
-          startDate: startDate.value,
-          endDate: endDate.value
-        });
-        console.log(response);
-        if (response.length) {
-          reports.value = response;
-          showReportesModal.value = true;
-          $toast.success('Reportes obtenidos con éxito.');
-        } else {
-          $toast.error('No se encontraron reportes en el rango de fechas seleccionado.');
-        }
-      } catch (error) {
-        console.error('Error al obtener reportes:', error);
-        $toast.error('Hubo un error al obtener los reportes.');
-      }
-    };
-
-    const selectEstudiante = (estudiante) => {
-      searchQuery.value = estudiante.usuario;
-      consultarAlumno();
-    };
-
-    onMounted(() => {
-      if (!user.user || !user.user.cambioContrasena) {
-        console.log(user.user)
-        $toast.error('Es necesario cambiar la contraseña.');
-        router.push('/configure');
-      }
+  try {
+    isLoading.value = true;
+    const response = await apiService.get('/estudiantes/usernames', {
+      params: { nombre: searchQuery.value },
     });
 
-    return {
-      user,
-      searchQuery,
-      startDate,
-      endDate,
-      showModal,
-      alumno,
-      filteredEstudiantes,
-      reports,
-      consultarAlumno,
-      filtrarEstudiantes,
-      selectEstudiante,
-      consultarReportesPorFechas,
-      showReportesModal,
-      consultarMiReporte
-    };
+    filteredEstudiantes.value = response.filter((estudiante) => {
+      const nombre = estudiante.nombre.toLowerCase();
+      const usuario = estudiante.usuario.toLowerCase();
+      const searchQueryLower = searchQuery.value.toLowerCase();
+      return nombre.includes(searchQueryLower) || usuario.includes(searchQueryLower);
+    });
+
+    isLoading.value = false;
+  } catch (error) {
+    isLoading.value = false;
+    console.error('Error al filtrar estudiantes:', error);
+    toast.error('Error al filtrar estudiantes.');
   }
 };
+
+const consultarAlumno = async () => {
+  if (searchQuery.value.trim() === '') {
+    toast.error('Por favor ingrese un nombre o ID de alumno.');
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    const response = await apiService.get(`/estudiantes/username/${searchQuery.value}`);
+    
+    if (response) {
+      alumno.value = response;
+      showModal.value = true;
+    } else {
+      toast.error('No se encontró al alumno.');
+    }
+
+    isLoading.value = false;
+  } catch (error) {
+    isLoading.value = false;
+    console.error('Error al buscar el alumno:', error);
+    toast.error('Hubo un error al buscar al alumno.');
+  }
+};
+
+const consultarMiReporte = async () => {
+  const usuario = user.user.usuario;
+  if (usuario.trim() === '') {
+    toast.error('No se encontró el usuario.');
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    const response = await apiService.get(`/estudiantes/username/${usuario}`);
+
+    if (response) {
+      alumno.value = response;
+      showModal.value = true;
+    } else {
+      toast.error('No se encontró al alumno.');
+    }
+
+    isLoading.value = false;
+  } catch (error) {
+    isLoading.value = false;
+    console.error('Error al buscar el alumno:', error);
+    toast.error('Hubo un error al buscar al alumno.');
+  }
+};
+
+const consultarReportesPorFechas = async () => {
+  if (!startDate.value || !endDate.value) {
+    toast.error('Por favor seleccione ambas fechas.');
+    return;
+  }
+
+  if (moment(endDate.value).isBefore(startDate.value)) {
+    toast.error('La fecha de fin debe ser posterior a la fecha de inicio.');
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    const response = await apiService.post('/reportes/dates', {
+      startDate: startDate.value,
+      endDate: endDate.value
+    });
+
+    if (response.length) {
+      reports.value = response;
+      showReportesModal.value = true;
+      toast.success('Reportes obtenidos con éxito.');
+    } else {
+      toast.error('No se encontraron reportes en el rango de fechas seleccionado.');
+    }
+
+    isLoading.value = false;
+    showReportesModal.value = true;
+  } catch (error) {
+    isLoading.value = false;
+    console.error('Error al obtener reportes:', error);
+    toast.error('Hubo un error al obtener los reportes.');
+  }
+};
+
+const selectEstudiante = (estudiante) => {
+  searchQuery.value = estudiante.usuario;
+  consultarAlumno();
+};
+
+onMounted(() => {
+  if (!user.user || !user.user.cambioContrasena) {
+    toast.error('Es necesario cambiar la contraseña.');
+    router.push('/configure');
+  }
+});
 </script>
+
 
 <style scoped>
 @import "../assets/css/ConsultsView.css";

@@ -39,20 +39,10 @@ const changePicture = async (teacherId: string, picture: string) => {
 
 
 
-const uploadImagebyImageName = async (images: any) => {
-    for (const image of images) {
-        const imageName = image.originalname.split('.')[0]; 
-        const student = await studentModel.findOne({ usuario: imageName });
-
-        if (student) {
-            await studentModel.findByIdAndUpdate(student._id, {
-                fotografia: image.secure_url, // Cambiado a secure_url
-            });
-        } else {
-            console.log(`Estudiante no encontrado para la imagen: ${image.originalname}`);
-        }
-    }
-};
+const uploadImage = async (teacherId: string, picture: string) => {
+    
+    return teacherModel.findByIdAndUpdate(teacherId, { fotografia: picture }, { new: true });
+}
 
 const changePassword = async (teacherId: string, newPass: string, oldPass: string, cambioContrasena: boolean) => {
     try {
@@ -84,7 +74,7 @@ export default {
     updateTeacher,
     deleteTeacher,
     getTeacherByUser,
-    uploadImagebyImageName,
+    uploadImage,
     changePicture,
     changePassword
 }

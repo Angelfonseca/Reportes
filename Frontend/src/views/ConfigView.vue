@@ -94,10 +94,11 @@ export default {
             try {
                 // Realiza la llamada a la API para cambiar la contraseña
                 if (validarAdmin.value) {
-                    const response = await apiService.patch(`maestros/auth/changePassword/${user.value._id}`, passwordChangeData);
+                    const response = await apiService.patch(`/maestros/auth/changePassword/${user.value._id}`, passwordChangeData);
                 } else {
                     const response = await apiService.patch(`/estudiantes/auth/changePassword/${user.value._id}`, passwordChangeData);
                 }
+                
                 toast.success('Contraseña actualizada correctamente.');
 
                 // Actualizar el valor de cambioContraseña en localStorage

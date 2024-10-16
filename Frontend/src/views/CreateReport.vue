@@ -48,10 +48,11 @@
               v-model="razonReporte"
               class="form-control"
               rows="4"
+              maxlength="50"
               required
             ></textarea>
           </div>
-          <div>
+            <div>
             <label for="puntos" class="label">Valor en puntos</label>
             <input
               type="number"
@@ -59,8 +60,10 @@
               v-model="puntos"
               class="form-control"
               required
+              :max="30"
+              :min="0"
             />
-          </div> 
+            </div> 
           <div class="form-group">
             <label for="clase" class="label">Clase:</label>
             <input
@@ -69,6 +72,7 @@
               v-model="clase"
               class="form-control"
               required
+              maxlength="20"
             />
           </div>
           <!-- Botón para enviar el formulario -->

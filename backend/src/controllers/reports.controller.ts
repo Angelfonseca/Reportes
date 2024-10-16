@@ -8,7 +8,7 @@ const createReport = async (req: Request, res: Response) => {
         const reportDetails = req.body;
         const { puntos, ...reporteSinPuntos } = reportDetails;
         const newReport = await reportsService.createReport(reporteSinPuntos) as { _id: string };
-        await studentsService.addReport(reportDetails.student_id, newReport._id, reportDetails.puntos );
+        await studentsService.addReport(reportDetails.student_id, newReport._id, reportDetails.puntos);
         res.status(201).json(newReport);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -116,11 +116,13 @@ const createpdf = async (req: Request, res: Response) => {
         // Llama al servicio para obtener los reportes en formato PDF
         const pdfBuffer = await reportsService.createpdf(startDate, endDate);
 
-        // Configura la respuesta para enviar el PDF como descarga
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
-        res.send(pdfBuffer);
+        console.log('PDF buffer length:', pdfBuffer.length);
+        console.log('PDF buffer type:', typeof pdfBuffer);
+
+        res.send(pdfBuffer.toString('base64'));
+
     } catch (error: any) {
+        console.error('Error generating PDF:', error);
         res.status(500).json({ error: error.message });
     }
 };

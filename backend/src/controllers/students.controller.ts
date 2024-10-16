@@ -116,7 +116,7 @@ const addPicture = async (req: Request, res: Response) => {
         }
 
         // Obtén la URL de la imagen firmada
-        const pictureUrl = req.file.path; // Usa req.file.path o req.file.secure_url según la configuración
+        const pictureUrl = req.file.path;
 
         // Llama al servicio para actualizar la base de datos
         const updatedStudent = await studentsService.addPicture(studentId, pictureUrl);
@@ -172,6 +172,42 @@ const passwordChange = async (req: Request, res: Response) => {
     }
 }
 
+const createpdf = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.id;
+
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+
+        const pdfBuffer = await studentsService.getPdfReports(userId);
+        res.send(pdfBuffer.toString('base64'));
+
+    } catch (error: any) {
+        console.error('Error generating PDF:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const deleteFueraSistema = async (req: Request, res: Response) => {
+    try {
+        const deletedStudents = await studentsService.deleteFueraSistema();
+        res.status(200).json(deletedStudents);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+const updateStudentsSemeseter = async (req: Request, res: Response) => {
+    try {
+        const students = req.body;
+        const updatedStudents = await studentsService.updateStudentsSemeseter(students);
+        res.status(200).json(updatedStudents);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 
 export default {
     createStudent,
@@ -184,5 +220,8 @@ export default {
     getStudentsUsername,
     addPicture,
     login,
-    passwordChange
+    passwordChange,
+    createpdf,
+    deleteFueraSistema,
+    updateStudentsSemeseter
 }

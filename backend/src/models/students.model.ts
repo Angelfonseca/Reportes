@@ -18,7 +18,8 @@ const studentSchema = new Schema<studentDocument>({
     fotografia: { type: String, default: 'uploads/userIcon.png' },
     reportes: [{ type: Schema.Types.ObjectId, ref: 'reports', default: [] }],
     cambioContrasena: { type: Boolean, default: false },
-    puntos: { type: Number, default: 100 }
+    puntos: { type: Number, default: 100 },
+    fueraSistema: { type: Boolean, default: false }
 });
 
 // Pre-save hook to hash password

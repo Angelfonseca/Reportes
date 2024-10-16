@@ -95,24 +95,29 @@ const changePicture = async (req: Request, res: Response) => {
     }
 }
 
-const uploadImages = async (req: CustomRequest, res: Response) => {
+const uploadImage = async (req: Request, res: Response) => {
     try {
-        console.log('Archivos recibidos:', req.files); // Añadir este log
-        const images = req.files; 
-
-        if (!images || images.length === 0) {
-            return res.status(400).json({ message: 'No se subieron imágenes' });
+        const teacherId = req.params.id;
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        await teachersService.uploadImagebyImageName(images);
-        console.log('Imágenes subidas y asociadas'); // Añadir este log
+        const pictureUrl = req.file.path;
+        const updatedTeacher = await teachersService.uploadImage(teacherId, pictureUrl);
+        console.log(updatedTeacher);
 
-        res.status(200).json({ message: 'Imágenes subidas y asociadas correctamente' });
-    } catch (error) {
-        console.error('Error al subir imágenes:', error);
-        res.status(500).json({ message: 'Error al subir imágenes', error });
+        if (!updatedTeacher) {
+            return res.status(404).json({ error: `Teacher with identifier ${teacherId} not found` }); // Añadir return aquí
+        }
+
+        return res.status(200).json(updatedTeacher); // Añadir return aquí
+    } catch (error: any) {
+        console.error('Error al actualizar la imagen:', error);
+        return res.status(500).json({ error: error.message });
     }
 }
+
 
 const changePassword = async (req: Request, res: Response) => {
     try {
@@ -138,7 +143,7 @@ export default {
     updateTeacher,
     deleteTeacher,
     getTeacherByUser,
-    uploadImages,
+    uploadImage,
     changePicture,
     changePassword
     

@@ -4,13 +4,13 @@
     <div class="container">
       <form class="form" @submit.prevent="addStudent">
         <div class="form-row">
-          <div class="form-group-left">
-            <label for="nombre">Nombre del estudiante:</label>
-            <input type="text" class="form-control" id="nombre" v-model="student.nombre" />
-          </div>
+            <div class="form-group-left">
+            <label for="nombre">Nombre:</label>
+            <input type="text" class="form-control" id="nombre" v-model="student.nombre" maxlength="40" @input="student.nombre = student.nombre.replace(/[^a-zA-Z\s]/g, '')"/>
+            </div>
           <div class="form-group-left">
             <label for="contrasena">Contraseña:</label>
-            <input type="password" class="form-control" id="contrasena" v-model="student.contrasena" />
+            <input type="password" class="form-control" id="contrasena" v-model="student.contrasena" maxlength="20" />
           </div>
           <div class="form-group-left">
             <label for="semestre">Semestre:</label>
@@ -25,13 +25,13 @@
           </div>
           <div class="form-group-left">
             <label for="grupo">Grupo:</label>
-            <input type="text" class="form-control" id="grupo" v-model="student.grupo" />
+            <input type="text" class="form-control" id="grupo" v-model="student.grupo" maxlength="1" @input="student.grupo = student.grupo.toUpperCase().replace(/[^A-Z]/g, '')" />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group-right">
             <label for="identificador">Identificador:</label>
-            <input type="text" class="form-control" id="identificador" v-model="student.identificador" />
+            <input type="text" class="form-control" id="identificador" v-model="student.identificador" maxlength="20"/>
           </div>
           <div class="form-group-right">
             <div class="template-action">

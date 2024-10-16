@@ -134,14 +134,14 @@ const createpdf = async (startDate: Date, endDate: Date): Promise<Buffer> => {
         await addReportsToTable(currentReports, tableTop + rowHeight);
 
         // Pie de página para firmas
-        const footerY = tableTop + rowHeight * (currentReports.length + 1) + 20;
-        doc.moveTo(50, footerY).lineTo(850, footerY).stroke();
+        const footerY = 550; // Ajustar la posición Y del pie de página
+        doc.moveTo(50, footerY).lineTo(842 - 50, footerY).stroke();
         doc
             .fontSize(12)
-            .text('NOMBRE Y FIRMA DEL ÁREA DE PREFECTURA', 50, footerY + 5, { align: 'center' })
+            .text('NOMBRE Y FIRMA DEL ÁREA DE PREFECTURA', 0, footerY + 5, { align: 'center' })
             .moveDown(1)
-            .text('____________________________________', 50, footerY + 25, { align: 'center' });
-    }
+            .text('____________________________________', 0, footerY + 25, { align: 'center' });
+        }
 
     doc.end();
 

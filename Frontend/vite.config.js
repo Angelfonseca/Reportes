@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     host: true, // Esto permite que el servidor sea accesible desde la red local
-    port: 5173  // Puedes cambiar el puerto si lo deseas
+    port: 5172  // Puedes cambiar el puerto si lo deseas
   }
 })

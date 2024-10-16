@@ -1,7 +1,7 @@
 <template>
     <BaseLayout>
         <div class="container">
-            <h1 class="title">Modificar Estudiante</h1>
+            <h1 class="title">Modificar Usuarios</h1>
 
             <div class="search-bar">
                 <label for="search">Buscar Estudiante:</label>
@@ -14,7 +14,8 @@
                     </li>
                 </ul>
             </div>
-            <button @click="templateModalVisible = true" v-if="!selectedStudent" class="pics-button">Subir Fotografías</button>
+            <button @click="templateModalVisible = true" v-if="!selectedStudent" class="pics-button">Subir
+                Fotografías</button>
 
             <div v-if="selectedStudent" class="edit-student-fields">
                 <form @submit.prevent="updateStudent" class="form">
@@ -50,10 +51,20 @@
             <!-- Modal para subir fotos -->
             <AddXlsx v-if="templateModalVisible" @close="templateModalVisible = false">
                 <template v-slot:header>
-                    <h2>Subir Fotografías</h2>
+                    <h1 style="font-size: 2rem; ">Subir Fotografías</h1>
                 </template>
                 <template v-slot:body>
-                    <input type="file" multiple id="fotografias" /> <br>
+                    <div class="form-field">
+                        <label for="tipoUsuario">Selecciona el tipo de usuario:</label>
+                        <select id="tipoUsuario" v-model="tipoUsuario">
+                            <option value="estudiante">Estudiante</option>
+                            <option value="docente">Docente</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="fotografias">Selecciona las fotografías:</label>
+                        <input type="file" multiple id="fotografias" />
+                    </div>
                 </template>
                 <template v-slot:footer>
                     <button class="modal-button" @click="subirFotos">Subir Fotografías</button>
@@ -70,6 +81,7 @@ import AddXlsx from '../components/AddXlsx.vue'; // Importa el modal
 import apiService from '../services/api.service';
 import { useToast } from 'vue-toast-notification';
 import { validateJWT, validateAdmin } from '../services/auth.pages';
+import { url } from '../services/api.config';
 
 validateAdmin();
 validateJWT();
@@ -80,6 +92,8 @@ const studentMatches = ref([]);
 const selectedStudent = ref(null);
 const toast = useToast();
 const templateModalVisible = ref(false); // Control de visibilidad del modal
+const tipoUsuario = ref('estudiante');
+const user = JSON.parse(localStorage.getItem('user'));
 
 const updatedFields = ref({
     nombre: '',
@@ -103,7 +117,7 @@ onMounted(async () => {
         console.log(user.user)
         $toast.error('Es necesario cambiar la contraseña.');
         router.push('/configure');
-      }
+    }
 });
 
 const filterStudents = () => {
@@ -139,52 +153,84 @@ const updateStudent = async () => {
     }
 };
 
-// Función para subir las fotos
 const subirFotos = async () => {
     const fotografias = document.getElementById('fotografias').files;
 
-    // Check if files are selected
+    // Verificar si se seleccionaron archivos
     if (!fotografias.length) {
         return toast.error('Por favor, selecciona una o más fotografías.', true);
     }
 
-    const subirFotosEstudiante = async (fotografias) => {
+    // Función que sube todas las fotos
+    const subirTodo = async (fotografias) => {
+        const promesas = []; // Array para almacenar las promesas de subida
+
         for (let i = 0; i < fotografias.length; i++) {
             const fotografia = fotografias[i];
             const fotografiaName = fotografia.name.split('.').slice(0, -1).join('.');
 
-            const formData = new FormData();
-            formData.append('fotografia', fotografia);  // Appending one image at a time
+            const promesa = (async () => {
+                try {
+                    let usuario; // Definido aquí para ser accesible
+                    // Buscar el ID del estudiante/maestro basado en el nombre del archivo
+                    if (tipoUsuario.value === 'estudiante') {
+                        usuario = await apiService.get(`/estudiantes/username/${fotografiaName}`);
+                    } else {
+                        usuario = await apiService.get(`/maestros/user/${fotografiaName}`);
+                    }
 
-            try {
-                // First, get the student ID based on the filename
-                const response = await fetch(`http://localhost:5000/api/estudiantes/username/${fotografiaName}`);
-                const data = await response.json();
+                    console.log('Respuesta de la API:', usuario);
 
-                if (data && data._id) {
-                    // Then, upload the picture to the corresponding student
-                    const postResponse = await fetch(`http://localhost:5000/api/estudiantes/picture/${data._id}`, {
-                        method: 'PATCH',
+                    // Verificar si la respuesta es válida
+                    if (usuario && usuario._id) {
+                        const formData = new FormData();
+                        formData.append('fotografia', fotografia); // Añadir el archivo
+                        console.log('Archivo que se va a enviar:', formData.get('fotografia'));
+
+
+                        let response; // Definido aquí para ser accesible
+                        if (tipoUsuario.value === 'estudiante') {
+                            response = await fetch(`${url}api/estudiantes/picture/${usuario._id}`, {
+                        method: 'POST',
                         body: formData,
                     });
-
-                    if (postResponse.ok) {
-                        toast.success(`Imagen ${fotografiaName} subida correctamente.`);
-                    } else {
-                        toast.error(`Error al subir la imagen ${fotografiaName}.`, true);
+                        } else {
+                            response = await fetch(`${url}api/maestros/picture/${usuario._id}`, {
+                        method: 'POST',
+                        body: formData,
                     }
-                } else {
-                    toast.error(`Estudiante no encontrado para la imagen ${fotografiaName}.`, true);
+                            );
+                        }
+
+                        // Aquí accedemos a la respuesta completa y al estado
+                        const status = response.status; // Esto puede ser undefined
+                        console.log('Respuesta de la API:', response);
+
+                        // Verifica que response tenga un estado definido
+                        if (status === 200 || status === 204) {
+                            toast.success(`Imagen ${fotografiaName} subida correctamente.`);
+                        } else {
+                            const errorCode = status || 'undefined';
+                            toast.error(`Error al subir la imagen ${fotografiaName}. Código: ${errorCode}`, true);
+                        }
+                    } else {
+                        toast.error(`Estudiante o maestro no encontrado para la imagen ${fotografiaName}.`, true);
+                    }
+                } catch (error) {
+                    console.error('Error al procesar la fotografía:', error);
+                    toast.error(`Error al procesar la imagen ${fotografiaName}.`, true);
                 }
-            } catch (error) {
-                console.error('Error al procesar la fotografía:', error);
-                toast.error(`Error al procesar la imagen ${fotografiaName}.`, true);
-            }
+            })();
+
+            promesas.push(promesa);
         }
+
+        await Promise.all(promesas);
     };
 
-    await subirFotosEstudiante(fotografias);  // Call the async upload function
+    await subirTodo(fotografias);
 };
+
 
 </script>
 
@@ -201,9 +247,11 @@ const subirFotos = async () => {
     color: #fff;
     margin-top: 20px;
 }
+
 .modal-button:hover {
     background-color: #28a745e0;
 }
+
 .pics-button {
     padding: 12px;
     border: none;
@@ -215,6 +263,7 @@ const subirFotos = async () => {
     color: #fff;
     margin-top: 20px;
 }
+
 .container {
     max-width: 600px;
     margin: auto;
@@ -292,6 +341,7 @@ const subirFotos = async () => {
     /* Tamaño de etiqueta ajustado */
     font-weight: bold;
 }
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -303,12 +353,14 @@ const subirFotos = async () => {
     justify-content: center;
     align-items: center;
 }
+
 .modal-content {
     background-color: white;
     padding: 20px;
     border-radius: 5px;
     width: 300px;
 }
+
 .modal-close {
     position: absolute;
     top: 10px;
