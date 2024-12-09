@@ -4,7 +4,7 @@ import {upload} from "../middlewares/multer.middleware";
 import ensureAuth from "../middlewares/auth.middleware";
 const router = Router();
 
-router.post('/', ensureAuth,teachersController.createTeacher);
+router.post('/', teachersController.createTeacher);
 router.get('/', ensureAuth,teachersController.getTeachers);
 router.get('/get/:id', ensureAuth,teachersController.getTeacherById);
 router.put('/:id', ensureAuth,teachersController.updateTeacher);
