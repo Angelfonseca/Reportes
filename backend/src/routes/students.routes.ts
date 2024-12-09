@@ -22,7 +22,7 @@ router.delete("/fueraSistema", ensureAuth,studentsController.deleteFueraSistema)
 router.post("/semestre", ensureAuth,studentsController.updateStudentsSemester);
 router.get("/ensistema", ensureAuth,studentsController.allStudentsEnSistema);
 router.post("/resetPoints", ensureAuth,studentsController.resetPoints);
-router.get("/test", (req, res) => { res.status(200).json({ token: tokenforTest }) }); //only for testing purposes
+// router.get("/test", (req, res) => { res.status(200).json({ token: tokenforTest }) }); //only for testing purposes
 
 
 export default router;
