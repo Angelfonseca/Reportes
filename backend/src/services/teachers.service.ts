@@ -40,30 +40,30 @@ const changePicture = async (teacherId: string, picture: string) => {
 
 
 const uploadImage = async (teacherId: string, picture: string) => {
-    
+
     return teacherModel.findByIdAndUpdate(teacherId, { fotografia: picture }, { new: true });
 }
 
 const changePassword = async (teacherId: string, newPass: string, oldPass: string, cambioContrasena: boolean) => {
     try {
-    const teacher = await teacherModel.findById(teacherId) as TeacherDocument;
-    if (!teacher) {
-        throw new Error(`Teacher with identifier ${teacherId} does not exist`);
-    }
-    if(newPass ==   oldPass){
-        throw new Error(`The new password is the same as the old password`);
-    }
+        const teacher = await teacherModel.findById(teacherId) as TeacherDocument;
+        if (!teacher) {
+            throw new Error(`Teacher with identifier ${teacherId} does not exist`);
+        }
+        if (newPass == oldPass) {
+            throw new Error(`The new password is the same as the old password`);
+        }
 
-    const isMatch = await teacher.comparePassword(oldPass);
-    if (!isMatch) {
-        throw new Error(`Old password does not match`);
-    }
+        const isMatch = await teacher.comparePassword(oldPass);
+        if (!isMatch) {
+            throw new Error(`Old password does not match`);
+        }
 
-    const hashedPassword = await bcrypt.hash(newPass, 10);
-    return teacherModel.findByIdAndUpdate(teacherId, { contrasena: hashedPassword, cambioContrasena: cambioContrasena }, { new: true });
-} catch (error: any) {
-    throw new Error(error.message);
-}
+        const hashedPassword = await bcrypt.hash(newPass, 10);
+        return teacherModel.findByIdAndUpdate(teacherId, { contrasena: hashedPassword, cambioContrasena: cambioContrasena }, { new: true });
+    } catch (error: any) {
+        throw new Error(error.message);
+    }
 }
 
 

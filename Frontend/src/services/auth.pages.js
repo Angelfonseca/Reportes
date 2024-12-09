@@ -42,9 +42,21 @@ export function validateAdmin() {
     const user = JSON.parse(localStorage.getItem('user'));
     
     if (!user || !user.user || !user.user.isAdmin) {
-        window.location.href = '/unauthorized'; 
         return false;
     }
 
     return true; 
+}
+
+export function onlyAdmin() {
+    if (!validateAdmin()) {
+        window.location.href = '/unauthorized';
+    }
+}
+
+export function adminandnonAdmin() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!validateAdmin() && !user.user.nonAdmin) {
+        window.location.href = '/unauthorized';
+    }
 }

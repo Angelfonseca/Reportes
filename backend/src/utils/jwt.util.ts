@@ -13,8 +13,10 @@ const createToken = (obj: any) => {
   return jwt.encode(payload, secret)
 }
 
+const tokenforTest = createToken({ id: '60f3b3b3b3b3b3b3b3b3b3b3', username: 'test' })
+
 const jwtMethods = {
   createToken
 }
 
-export default jwtMethods
+export default {jwtMethods, tokenforTest}

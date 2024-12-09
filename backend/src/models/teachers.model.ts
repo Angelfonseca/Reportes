@@ -8,9 +8,10 @@ const teacherSchema = new Schema<teacher>({
     nombre: { type: String, required: true },
     contrasena: { type: String, required: true },
     usuario: { type: String, required: true },
-    fotografia: { type: String, default: 'uploads/userIcon.png' },
-    isAdmin: { type: Boolean, required: true },
-    cambioContrasena: { type: Boolean, required: true, default: false }
+    fotografia: { type: String, default: '/userIcon.png' },
+    isAdmin: { type: Boolean, required: true, default: false },
+    cambioContrasena: { type: Boolean, required: true, default: false },
+    nonAdmin: { type: Boolean, required: true, default: true }
 });
 
 // Pre-save middleware to hash password if modified

@@ -15,7 +15,7 @@ const studentSchema = new Schema<studentDocument>({
     semestre: { type: String, required: true },
     grupo: { type: String, required: true },
     usuario: { type: String, required: true },
-    fotografia: { type: String, default: 'uploads/userIcon.png' },
+    fotografia: { type: String, default: '/userIcon.png' },
     reportes: [{ type: Schema.Types.ObjectId, ref: 'reports', default: [] }],
     cambioContrasena: { type: Boolean, default: false },
     puntos: { type: Number, default: 100 },

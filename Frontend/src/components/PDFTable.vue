@@ -32,7 +32,6 @@
               <th class="table-header">Fecha</th>
               <th class="table-header">Quien reporta</th>
               <th class="table-header">Categoria</th>
-              <th class="table-header">Firma quien reporta</th>
             </tr>
           </thead>
           <tbody>
@@ -48,9 +47,6 @@
               </td>
               <td class="table-cell" data-label="Categoria">
                 {{ reporte.category }}
-              </td>
-              <td class="table-cell" data-label="Firma quien reporta">
-                {{ reporte.teacher_signature }}
               </td>
             </tr>
           </tbody>
@@ -108,7 +104,6 @@ export default {
       reportesConGrupo.value = reportesConGrupoTemp;
     };
 
-    // Computed para filtrar los reportes de la página seleccionada
     const selectedPaginatedReports = computed(() => {
       const startIndex = (selectedPage.value - 1) * reportsPerPage;
       return reportesConGrupo.value.slice(startIndex, startIndex + reportsPerPage);
@@ -125,38 +120,31 @@ export default {
           endDate: new Date(props.endDate).toISOString(),
         });
 
-        // Verifica que la respuesta tenga datos
         if (!response) {
           alert('El PDF está vacío o no se recibió correctamente.');
           return;
         }
 
-        // Extrae la cadena Base64
-        const base64Data = response; // La respuesta es una cadena Base64
+        const base64Data = response; 
 
-        // Decodifica el Base64
         const binaryData = window.atob(base64Data);
 
-        // Convierte la cadena binaria en un array de bytes
         const len = binaryData.length;
         const bytes = new Uint8Array(len);
         for (let i = 0; i < len; i++) {
           bytes[i] = binaryData.charCodeAt(i);
         }
 
-        // Crea un Blob a partir del array de bytes
         const blob = new Blob([bytes], { type: 'application/pdf' });
 
-        // Crea una URL temporal para el blob
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `reporte_${props.startDate}_${props.endDate}.pdf`; // Nombre del archivo
+        a.download = `reporte_${props.startDate}_${props.endDate}.pdf`; 
         document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a); // Limpia el DOM después de la descarga
+        document.body.removeChild(a);
 
-        // Revoca la URL después de un pequeño retraso
         setTimeout(() => URL.revokeObjectURL(url), 100);
       } catch (error) {
         console.error('Error downloading PDF:', error);

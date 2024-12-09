@@ -24,7 +24,7 @@
         <label class="label" for="endDate">Fecha de fin:</label>
         <input type="date" id="endDate" v-model="endDate" /> <br> <br>
 
-        <button class="search-button" @click="consultarReportesPorFechas">Obtener Reportes</button>
+        <button class="search-button" id="reportes" @click="consultarReportesPorFechas">Obtener Reportes</button>
       </div>
     </div>
     </div>
@@ -190,6 +190,10 @@ onMounted(() => {
   if (!user.user || !user.user.cambioContrasena) {
     toast.error('Es necesario cambiar la contraseña.');
     router.push('/configure');
+  }
+  if (user.user.nonAdmin) {
+    toast.error('No autorizado!.');
+    router.push('/reporte');
   }
 });
 </script>

@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-const url = 'http://localhost:5000/';
-// const url = 'http://192.168.100.8:5000/';
+// const url = 'http://localhost:5000/';
+const url = 'https://2g4tp0th-5000.usw3.devtunnels.ms/';
 const api = axios.create({
-    baseURL: `${url}api`
+    baseURL: `${url}api/` 
 });
 
 api.interceptors.request.use(
     function (config) {
-        const token = localStorage.getItem('user');
+        const token = JSON.parse(localStorage.getItem('user'));
         if (token && token.token) {
             config.headers.Authorization = `${token.token}`;
         }
@@ -19,4 +19,18 @@ api.interceptors.request.use(
     }
 );
 
-export { api, url }; 
+api.interceptors.response.use(
+    function (response) {
+        return response;
+    },
+    function (error) {
+        if (error.response && error.response.status === 401) {
+            alert('Sesión expirada o invalida. Por favor, inicie sesión nuevamente.');
+            window.location.href = '/';
+        }
+        return Promise.reject(error);
+    }
+);
+
+export { api, url };
+

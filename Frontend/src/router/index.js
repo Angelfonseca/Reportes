@@ -30,6 +30,16 @@ const router = createRouter({
     component: () => import('../views/ModifyUser.vue')
     },
     {
+      path: '/maestros',
+      name: 'maestros',
+      component: () => import('../views/AddTeachersView.vue')
+    },
+    {
+      path: '/cambios-masivos',
+      name: 'cambios-masivos',
+      component: () => import('../views/MassiveChanges.vue')
+    },
+    {
     path: '/unauthorized',
     name: 'unauthorized',
     component: () => import('../views/UnauthorizedView.vue')

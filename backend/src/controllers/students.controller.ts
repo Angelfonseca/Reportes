@@ -144,7 +144,7 @@ const login = async (req: Request, res: Response) => {
             return res.status(400).json({ message: result.message });
         }
 
-        const token = await jwtService.createToken(result.user);
+        const token = await jwtService.jwtMethods.createToken(result.user);
         console.log('Generated token:', token);
 
         return res.status(200).json({ user: result.user, token });
@@ -198,15 +198,36 @@ const deleteFueraSistema = async (req: Request, res: Response) => {
     }
 }
 
-const updateStudentsSemeseter = async (req: Request, res: Response) => {
+const updateStudentsSemester = async (req: Request, res: Response) => {
     try {
-        const students = req.body;
-        const updatedStudents = await studentsService.updateStudentsSemeseter(students);
-        res.status(200).json(updatedStudents);
+      const students = req.body.students;
+      console.log(students);
+      const updatedStudents = await studentsService.updateStudentsSemester(students);
+      res.status(200).json(updatedStudents);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+const allStudentsEnSistema = async (req: Request, res: Response) => {
+    try {
+        const students = await studentsService.getAllStudentsDentroSistema();
+        res.status(200).json(students);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
 }
+
+const resetPoints = async (req: Request, res: Response) => {
+    try {
+        const studentsIds = req.body.students;
+        const students = await studentsService.resetPoints(studentsIds);
+        res.status(200).json(students);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 
 
 export default {
@@ -223,5 +244,7 @@ export default {
     passwordChange,
     createpdf,
     deleteFueraSistema,
-    updateStudentsSemeseter
+    updateStudentsSemester,
+    allStudentsEnSistema,
+    resetPoints
 }

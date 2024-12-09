@@ -1,4 +1,4 @@
-/* Overlay para el modal */
+/* Estilo del overlay */
 .overlay {
   position: fixed;
   top: 0;
@@ -9,17 +9,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: auto; /* Aseguramos que se pueda hacer scroll si es necesario */
+  overflow: auto; /* Permitir scroll si es necesario */
   z-index: 1000; /* Elevar el overlay sobre otros elementos */
-}
-
-.navlogo {
-  width: 200px; /* Reducimos el tamaño en móviles */
-  height: auto;
-  margin: 0 auto;
-  justify-content: center;
-  align-items: center;
-  display: flex;
 }
 
 /* Estilos del modal */
@@ -30,14 +21,13 @@
   max-width: 700px; /* Limitar el ancho máximo para que no se expanda demasiado */
   height: auto;
   margin: 0 auto;
-  padding: 1in; /* Mantener el padding */
+  padding: 1rem; /* Mantener el padding */
   border: 1px solid #ccc;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
   font-family: 'Arial', sans-serif;
   box-sizing: border-box;
-  overflow: auto;
+  overflow: hidden; /* Evitar el desplazamiento del modal en sí */
 }
-
 
 /* Títulos y fechas */
 .title {
@@ -60,6 +50,9 @@
   background-color: #f0f0f0 !important; /* Fondo claro para la cabecera de tabla */
   color: black !important;  
   overflow-x: auto; /* Permitir scroll horizontal en tablas si es necesario */
+  display: block; /* Habilitar el desplazamiento horizontal */
+  max-height: 300px; /* Altura máxima para el scroll vertical */
+  overflow-y: auto; /* Permitir scroll vertical */
 }
 
 .report-table th,
@@ -136,7 +129,6 @@ button:hover {
     border: none; /* Sin bordes innecesarios */
   }
 }
-
 
 /* Ajustes para pantallas pequeñas */
 @media (max-width: 780px) {

@@ -8,22 +8,12 @@
         <form @submit.prevent="generarReporte">
           <div class="form-group">
             <label for="nombreEstudiante" class="label">Nombre del estudiante:</label>
-            <input
-              type="text"
-              id="nombreEstudiante"
-              v-model="searchQuery"
-              @input="filtrarEstudiantes"
-              class="form-control"
-              placeholder="Buscar estudiante..."
-            />
+            <input type="text" id="nombreEstudiante" v-model="searchQuery" @input="filtrarEstudiantes"
+              class="form-control" placeholder="Buscar estudiante..." />
             <!-- Lista de sugerencias filtradas -->
             <ul v-if="estudiantesFiltrados.length" class="suggestions">
-              <li
-                v-for="(estudiante, index) in estudiantesFiltrados"
-                :key="index"
-                @click="seleccionarEstudiante(estudiante)"
-                class="suggestion-item"
-              >
+              <li v-for="(estudiante, index) in estudiantesFiltrados" :key="index"
+                @click="seleccionarEstudiante(estudiante)" class="suggestion-item">
                 {{ estudiante.nombre }}
               </li>
             </ul>
@@ -32,51 +22,24 @@
           <!-- Display selected student name -->
           <div class="form-group" v-if="nombreEstudiante">
             <label for="nombreSeleccionado" class="label">Estudiante seleccionado:</label>
-            <input
-              type="text"
-              id="nombreSeleccionado"
-              v-model="nombreEstudiante"
-              class="form-control"
-              readonly
-            />
+            <input type="text" id="nombreSeleccionado" v-model="nombreEstudiante" class="form-control" readonly />
           </div>
 
           <div class="form-group">
             <label for="razonReporte" class="label">Razón del reporte:</label>
-            <textarea
-              id="razonReporte"
-              v-model="razonReporte"
-              class="form-control"
-              rows="4"
-              maxlength="50"
-              required
-            ></textarea>
+            <textarea id="razonReporte" v-model="razonReporte" class="form-control" rows="4" maxlength="80"
+              required></textarea>
           </div>
-            <div>
+          <div>
             <label for="puntos" class="label">Valor en puntos</label>
-            <input
-              type="number"
-              id="puntos"
-              v-model="puntos"
-              class="form-control"
-              required
-              :max="30"
-              :min="0"
-            />
-            </div> 
+            <input type="number" id="puntos" v-model="puntos" class="form-control" required :max="30" :min="0" />
+          </div>
           <div class="form-group">
             <label for="clase" class="label">Clase:</label>
-            <input
-              type="text"
-              id="clase"
-              v-model="clase"
-              class="form-control"
-              required
-              maxlength="20"
-            />
+            <input type="text" id="clase" v-model="clase" class="form-control" required maxlength="20" />
           </div>
           <!-- Botón para enviar el formulario -->
-          <button type="submit" class="submit-button">
+          <button type="submit" class="submit-button" id="report-btn">
             Generar reporte
           </button>
         </form>
@@ -90,7 +53,7 @@ import { ref } from 'vue';
 import { useToast } from 'vue-toast-notification';
 import apiService from '../services/api.service';
 import BaseLayout from '../layout/BaseLayout.vue';
-import {validateJWT, validateAdmin} from '../services/auth.pages';
+import { validateJWT, adminandnonAdmin } from '../services/auth.pages';
 import { onMounted } from 'vue';
 const searchQuery = ref('');
 const estudiantesFiltrados = ref([]);
@@ -98,7 +61,7 @@ const nombreEstudiante = ref('');
 const razonReporte = ref('');
 const clase = ref('');
 validateJWT();
-validateAdmin();
+adminandnonAdmin()
 let studentId = '';
 const categoria = ref('Reporte');
 const user = JSON.parse(localStorage.getItem('user'));
@@ -172,96 +135,98 @@ const generarReporte = () => {
       console.error('Error al generar reporte:', error);
       toast.error('Error al generar reporte');
     });
-    onMounted(() => {
-      if (!user.user || !user.user.cambioContrasena) {
-        console.log(user.user)
-        $toast.error('Es necesario cambiar la contraseña.');
-        router.push('/configure');
-      }
-    });
+  onMounted(() => {
+    if (!user.user || !user.user.cambioContrasena) {
+      console.log(user.user)
+      $toast.error('Es necesario cambiar la contraseña.');
+      router.push('/configure');
+    }
+  });
 };
 </script>
 
-  
-  <style scoped>
-  .title {
-    font-size: 60px;
-    font-family: jomolhari;
-    margin-top: 10px;
-    margin-bottom: 20px; /* Add some space between the title and the form */
-  }
 
+<style scoped>
+.title {
+  font-size: 60px;
+  font-family: jomolhari;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  /* Add some space between the title and the form */
+}
+
+.report-container {
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  /* Center the container horizontally */
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+}
+
+textarea.form-control {
+  resize: vertical;
+}
+
+.submit-button {
+  background-color: #28a745;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #218838;
+}
+
+/* Estilos para las sugerencias */
+.suggestions {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.5rem;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  border-radius: 4px;
+}
+
+.suggestion-item {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* Adaptación móvil */
+@media (max-width: 768px) {
   .report-container {
-    padding: 2rem;
-    max-width: 600px;
-    margin: 0 auto; /* Center the container horizontally */
+    padding: 1rem;
+    max-width: 100%;
   }
-
-  .form-container {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  .label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-  }
-
-  .form-control {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-  }
-
-  textarea.form-control {
-    resize: vertical;
-  }
-
-  .submit-button {
-    background-color: #28a745;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .submit-button:hover {
-    background-color: #218838;
-  }
-
-  /* Estilos para las sugerencias */
-  .suggestions {
-    list-style: none;
-    padding: 0;
-    margin-top: 0.5rem;
-    border: 1px solid #ccc;
-    max-height: 150px;
-    overflow-y: auto;
-    border-radius: 4px;
-  }
-
-  .suggestion-item {
-    padding: 0.5rem;
-    cursor: pointer;
-  }
-
-  .suggestion-item:hover {
-    background-color: #f0f0f0;
-  }
-
-  /* Adaptación móvil */
-  @media (max-width: 768px) {
-    .report-container {
-      padding: 1rem;
-      max-width: 100%;
-    }
-  }
+}
 </style>

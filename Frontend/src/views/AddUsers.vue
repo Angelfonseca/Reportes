@@ -15,12 +15,12 @@
           <div class="form-group-left">
             <label for="semestre">Semestre:</label>
             <select class="form-control" id="semestre" v-model="student.semestre">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
+              <option value=1>1</option>
+              <option value=2>2</option>
+              <option value=3>3</option>
+              <option value=4>4</option>
+              <option value=5>5</option>
+              <option value=6>6</option>
             </select>
           </div>
           <div class="form-group-left">
@@ -40,7 +40,7 @@
             </div>
           </div>
         </div>
-        <button class="btn btn-primary" type="submit">Añadir alumno</button>
+        <button class="btn btn-primary" id="add-btn" type="submit">Añadir alumno</button>
       </form>
     </div>
     <!-- Modal for template -->
@@ -69,10 +69,10 @@ import apiService from '../services/api.service';
 import BaseLayout from '../layout/BaseLayout.vue';
 import { useToast } from 'vue-toast-notification';
 import AddXlsx from '../components/AddXlsx.vue';
-import {validateJWT, validateAdmin} from '../services/auth.pages';
+import {validateJWT, onlyAdmin} from '../services/auth.pages';
 import { onMounted } from 'vue';
 
-validateAdmin();
+onlyAdmin()
 validateJWT();
 export default {
   components: {

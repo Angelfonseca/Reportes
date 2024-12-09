@@ -1,0 +1,196 @@
+.modal-button {
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: #28a745;
+    color: #fff;
+    margin-top: 20px;
+}
+
+.modal-button:hover {
+    background-color: #28a745e0;
+}
+
+.pics-button {
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: #2E2B75;
+    color: #fff;
+    margin-top: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+}
+
+.title {
+    text-align: center;
+    font-size: 4rem;
+    /* Aumenta el tamaño del título */
+    margin-bottom: 20px;
+    font-family: Jomolhari;
+}
+
+.search-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.search-bar label {
+    font-size: 1.2rem;
+    /* Tamaño de etiqueta ajustado */
+    font-weight: bold;
+}
+
+.search-bar input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    font-size: 1rem;
+}
+
+.search-results {
+    margin-top: 5px;
+    list-style: none;
+    padding: 0;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    border-radius: 15px;
+    /* Esquinas redondeadas para los resultados */
+}
+
+.search-item {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-item:hover {
+    background-color: #f0f0f0;
+    /* Efecto al pasar el cursor */
+}
+
+.edit-student-fields {
+    margin-top: 20px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* Espacio entre secciones */
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-field label {
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    /* Tamaño de etiqueta ajustado */
+    font-weight: bold;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 300px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form-field input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    font-size: 1rem;
+}
+
+button {
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"] {
+    background-color: #2E2B75;
+    /* Color de botón primario */
+    color: #fff;
+}
+
+button[type="submit"]:hover {
+    background-color: #2e2b75e0;
+    /* Color al pasar el cursor */
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+.success {
+    color: green;
+    margin-top: 10px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .search-bar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-results {
+        max-height: 100px;
+        overflow-y: auto;
+    }
+
+    .edit-student-fields {
+        margin-top: 10px;
+    }
+
+    .form-field {
+        margin-bottom: 10px;
+    }
+}

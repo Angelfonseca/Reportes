@@ -1,20 +1,20 @@
 <template>
     <BaseLayout>
         <div class="container">
-            <h1 class="title">Configuración de Usuario</h1>
+            <h1 class="title">Usuario</h1>
             <div class="form">
                 <div class="form-group">
                     <label for="nombre" class="label">Nombre:</label>
                     <input type="text" id="nombre" v-model="user.nombre" class="form-control" readonly />
                 </div>
                 <div class="form-group">
-                    <label v-if="!validarAdmin" for="semestre" class="label">Semestre:</label>
-                    <input v-if="!validarAdmin" type="text" id="semestre" v-model="user.semestre" class="form-control"
+                    <label v-if="!validateAdmin && user && user.nonAdmin" for="semestre" class="label">Semestre:</label>
+                    <input v-if="!validateAdmin && user && user.nonAdmin" type="text" id="semestre" v-model="user.semestre" class="form-control"
                         readonly />
                 </div>
                 <div class="form-group">
-                    <label v-if="!validarAdmin" for="grupo" class="label">Grupo:</label>
-                    <input v-if="!validarAdmin" type="text" id="grupo" v-model="user.grupo" class="form-control"
+                    <label v-if="!validateAdmin && user && user.nonAdmin" for="grupo" class="label">Grupo:</label>
+                    <input v-if="!validateAdmin && user && user.nonAdmin" type="text" id="grupo" v-model="user.grupo" class="form-control"
                         readonly />
                 </div>
                 <div class="form-group">
@@ -22,8 +22,8 @@
                     <input type="text" id="identificador" v-model="user.usuario" class="form-control" readonly />
                 </div>
                 <div class="form-group">
-                    <label v-if="!validarAdmin" for="puntos" class="label">Puntos:</label>
-                    <input v-if="!validarAdmin" type="text" id="puntos" v-model="user.puntos" class="form-control"
+                    <label v-if="!validateAdmin && user && user.nonAdmin" for="puntos" class="label">Puntos:</label>
+                    <input v-if="!validateAdmin && user && user.nonAdmin" type="text" id="puntos" v-model="user.puntos" class="form-control"
                         readonly />
                 </div>
 
@@ -42,7 +42,7 @@
                     <input type="password" id="confirmarContrasena" v-model="confirmarContrasena" class="form-control"
                         required />
                 </div>
-                <button @click="cambiarContrasena" class="btn-primary">Cambiar Contraseña</button>
+                <button id="changeBtn" @click="cambiarContrasena" class="btn-primary">Cambiar Contraseña</button>
             </div>
         </div>
     </BaseLayout>
@@ -53,7 +53,9 @@ import BaseLayout from '../layout/BaseLayout.vue';
 import { ref, onMounted } from 'vue';
 import { useToast } from 'vue-toast-notification';
 import apiService from '../services/api.service';
-import { validateJWT } from '../services/auth.pages';
+import { validateJWT, validateAdmin } from '../services/auth.pages';
+validateJWT();
+
 
 
 export default {
@@ -73,6 +75,11 @@ export default {
             if (userData) {
                 user.value = userData.user; // Guardar el objeto completo (usuario + token)
                 storedUser.value = userData; // Guardar para uso interno
+                if (validateAdmin){
+                    validarAdmin.value = true;
+                } else {
+                    validarAdmin.value = false;
+                }
             } else {
                 console.error("No se encontró el usuario en localStorage");
             }
@@ -94,11 +101,14 @@ export default {
             try {
                 // Realiza la llamada a la API para cambiar la contraseña
                 if (validarAdmin.value) {
-                    const response = await apiService.patch(`/maestros/auth/changePassword/${user.value._id}`, passwordChangeData);
+                    await apiService.patch(`/maestros/auth/changePassword/${user.value._id}`, passwordChangeData);
                 } else {
-                    const response = await apiService.patch(`/estudiantes/auth/changePassword/${user.value._id}`, passwordChangeData);
+                    if (user.value.nonAdmin === true || user.value.isAdmin) {
+                        await apiService.patch(`/maestros/auth/changePassword/${user.value._id}`, passwordChangeData);
+                    } else {
+                        await apiService.patch(`/estudiantes/auth/changePassword/${user.value._id}`, passwordChangeData);
+                    }
                 }
-                
                 toast.success('Contraseña actualizada correctamente.');
 
                 // Actualizar el valor de cambioContraseña en localStorage
@@ -128,13 +138,10 @@ export default {
                 user.value = userData.user;
                 storedUser.value = userData;
 
-                console.log('data ', userData.user);
-
-                if ('isAdmin' in userData.user) {
-                    console.log('isAdmin existe en el usuario');
+                if ('isAdmin' in userData.user && userData.user.nonAdmin === true) {
                     validarAdmin.value = true;
                 } else {
-                    console.error('No se encontró la propiedad isAdmin en el usuario');
+                    validarAdmin.value = false;
                 }
             } else {
                 console.error("No se encontró el usuario en localStorage");
@@ -150,67 +157,12 @@ export default {
             nuevaContrasena,
             confirmarContrasena,
             cambiarContrasena,
-            validarAdmin,
+            validateAdmin,
         };
     },
 };
 </script>
 
 <style scoped>
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.title {
-    text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    font-family: Jomolhari;
-}
-
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.label {
-    margin-bottom: 5px;
-    font-size: 1.1rem;
-    font-weight: bold;
-}
-
-.form-control {
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-    font-size: 1rem;
-}
-
-.btn-primary {
-    padding: 12px;
-    border: none;
-    border-radius: 25px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    background-color: #2E2B75;
-    color: #fff;
-    transition: background-color 0.3s;
-}
-
-.btn-primary:hover {
-    background-color: #2e2b75e0;
-}
-
-@media (max-width: 768px) {
-    .form {
-        flex-direction: column;
-    }
-}
+@import '../assets/css/ConfigView.css';
 </style>

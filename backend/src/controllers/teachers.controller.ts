@@ -2,10 +2,6 @@ import teachersService from "../services/teachers.service";
 import { teacher } from "../interfaces/teachers.interface";
 import { Request, Response } from "express";
 
-interface CustomRequest extends Request {
-    files?: any;
-}
-
 const createTeacher = async (req: Request, res: Response) => {
     try {
         const teacherDetails: teacher = req.body;
@@ -30,7 +26,7 @@ const getTeacherById = async (req: Request, res: Response) => {
         const teacherId = req.params.id;
         const teacher = await teachersService.getTeacherById(teacherId);
         if (!teacher) {
-            res.status(404).json({ error: `Teacher with identifier ${teacherId} not found` });
+            return res.status(404).json({ error: `Teacher with identifier ${teacherId} not found` });
         }
         res.status(200).json(teacher);
     } catch (error: any) {

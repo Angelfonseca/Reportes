@@ -71,7 +71,8 @@
 }
 
 .link:hover {
-  background-color: #C1D119;
+  background-color: #CCCCCC ;
+  color: #4CAF50;
 }
 
 .toggle-button {

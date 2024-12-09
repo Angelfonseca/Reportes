@@ -115,10 +115,7 @@ const createpdf = async (req: Request, res: Response) => {
 
         // Llama al servicio para obtener los reportes en formato PDF
         const pdfBuffer = await reportsService.createpdf(startDate, endDate);
-
-        console.log('PDF buffer length:', pdfBuffer.length);
-        console.log('PDF buffer type:', typeof pdfBuffer);
-
+        
         res.send(pdfBuffer.toString('base64'));
 
     } catch (error: any) {

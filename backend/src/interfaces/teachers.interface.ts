@@ -6,6 +6,7 @@ export interface teacher {
     fotografia: string;
     isAdmin: boolean;
     cambioContrasena: boolean;
+    nonAdmin: boolean;
 }
 
 export interface TeacherDocument extends teacher, Document {

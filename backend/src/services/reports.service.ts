@@ -35,7 +35,7 @@ const createpdf = async (startDate: Date, endDate: Date): Promise<Buffer> => {
     const doc = new PDFDocument({
         size: 'A4',
         layout: 'landscape',
-        margins: { top: 50, bottom: 50, left: 50, right: 50 }, // Márgenes
+        margins: { top: 50, bottom: 50, left: 50, right: 50 },
     });
 
     let pdfData: Buffer[] = [];
@@ -65,7 +65,13 @@ const createpdf = async (startDate: Date, endDate: Date): Promise<Buffer> => {
     // Tabla encabezado
     const tableTop = 150;
     const rowHeight = 30;
-    const colWidth = [50, 120, 200, 120, 80, 120, 80];
+    const colWidth = [50, 150, 200, 100, 80, 100, 60]; // Ajustar los anchos de columna
+    const totalWidth = colWidth.reduce((a, b) => a + b, 0);
+    
+    // Verificar si el ancho total no excede el límite de la página
+    if (totalWidth > (842 - 100)) { // 100 es el margen total (50 por cada lado)
+        console.warn('El ancho total de las columnas excede el ancho de la página.');
+    }
 
     const drawTableHeader = () => {
         doc
@@ -74,13 +80,14 @@ const createpdf = async (startDate: Date, endDate: Date): Promise<Buffer> => {
 
         const headerY = tableTop;
 
-        // Ajustar posiciones y ancho
-        doc.text('Grupo', 50, headerY, { width: colWidth[0] });
-        doc.text('Nombre', 130, headerY, { width: colWidth[1] });
-        doc.text('Motivo', 330, headerY, { width: colWidth[2] });
-        doc.text('Fecha', 580, headerY, { width: colWidth[3] });
-        doc.text('Quien reporta', 680, headerY, { width: colWidth[4] });
-        doc.text('Categoría', 780, headerY, { width: colWidth[5] });
+        // Encabezados de columna
+        const headers = ['Grupo', 'Nombre', 'Motivo', 'Fecha', 'Quien reporta', 'Categoría', 'Clase'];
+        let xOffset = 50;
+
+        headers.forEach((header, index) => {
+            doc.text(header, xOffset, headerY, { width: colWidth[index] });
+            xOffset += colWidth[index];
+        });
 
         // Líneas para el encabezado
         doc.moveTo(50, headerY + rowHeight).lineTo(842 - 50, headerY + rowHeight).stroke();
@@ -106,19 +113,19 @@ const createpdf = async (startDate: Date, endDate: Date): Promise<Buffer> => {
 
             // Filas alternas
             const fillColor = index % 2 === 0 ? '#f0f0f0' : '#ffffff';
-            doc.rect(50, y, 792, rowHeight).fill(fillColor);
+            doc.rect(50, y, totalWidth, rowHeight).fill(fillColor); // Cambiar a totalWidth
 
             doc
                 .fontSize(10)
                 .font('Helvetica')
-                .fillColor('#000000')
-                .text(group, 50, y, { width: colWidth[0], height: rowHeight })
-                .text(item.student_name, 130, y, { width: colWidth[1], height: rowHeight, ellipsis: true })
-                .text(item.reason, 330, y, { width: colWidth[2], height: rowHeight, ellipsis: true })
-                .text(item.createdAt ? item.createdAt.toISOString().split('T')[0] : 'N/A', 580, y, { width: colWidth[3], height: rowHeight })
-                .text(item.teacher_name, 680, y, { width: colWidth[4], height: rowHeight })
-                .text(item.category, 780, y, { width: colWidth[5], height: rowHeight })
-                .text(item.class, 880, y, { width: colWidth[6], height: rowHeight });
+                .fillColor('#000000');
+
+            let xOffset = 50;
+            const values = [group, item.student_name, item.reason, item.createdAt ? item.createdAt.toISOString().split('T')[0] : 'N/A', item.teacher_name, item.category, item.class];
+            values.forEach((value, index) => {
+                doc.text(value, xOffset, y + 5, { width: colWidth[index], height: rowHeight, ellipsis: true }); // Añadir un margen superior de 5
+                xOffset += colWidth[index];
+            });
 
             // Líneas para las filas
             doc.moveTo(50, y + rowHeight).lineTo(842 - 50, y + rowHeight).stroke();
@@ -134,14 +141,12 @@ const createpdf = async (startDate: Date, endDate: Date): Promise<Buffer> => {
         await addReportsToTable(currentReports, tableTop + rowHeight);
 
         // Pie de página para firmas
-        const footerY = 550; // Ajustar la posición Y del pie de página
-        doc.moveTo(50, footerY).lineTo(842 - 50, footerY).stroke();
+        const footerY = tableTop + rowHeight * currentReports.length + 20; // Ajustar la posición Y del pie de página
+
         doc
             .fontSize(12)
-            .text('NOMBRE Y FIRMA DEL ÁREA DE PREFECTURA', 0, footerY + 5, { align: 'center' })
-            .moveDown(1)
-            .text('____________________________________', 0, footerY + 25, { align: 'center' });
-        }
+            .text('NOMBRE Y FIRMA DEL ÁREA DE PREFECTURA', 0, footerY, { align: 'center' });
+    }
 
     doc.end();
 

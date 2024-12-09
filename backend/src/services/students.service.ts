@@ -119,16 +119,44 @@ const findStudentsByIds = async (ids: string[]) => {
     return students;
 }
 
-const updateStudentsSemeseter = async (students: any[]) => {
-    students.forEach(async (student) => {
-        const newSemester = student.semestre + 1;
-        if (newSemester > 6) {
-            return studentModel.findByIdAndUpdate(student._id, { semestre: 6, fueraSistema: true }, { new: true });
+const resetPoints = async (students: string[]) => {
+    let updatedStudents = [];
+    for (const studentId of students) {
+        const student = await studentModel.findById(studentId);
+        if (!student) {
+            throw new Error(`Student with ID ${studentId} not found`);
         }
-        return studentModel.findByIdAndUpdate(student._id, { semestre: newSemester }, { new: true });
+        updatedStudents.push(await studentModel.findByIdAndUpdate(studentId, { puntos: 100 }, { new: true }));
     }
-    );
+    return updatedStudents;
 }
+
+
+const updateStudentsSemester = async (students: string[]) => {
+    const updatedStudents = [];
+    for (const studentId of students) {
+      try {
+        const student = await studentModel.findById(studentId);
+        if (!student) {
+          throw new Error(`Student with ID ${studentId} not found`);
+        }
+  
+        let newSemester = (parseInt(student.semestre, 10) + 1).toString();
+  
+        const updateData = newSemester > "6" 
+          ? { semestre: newSemester, fueraSistema: true } 
+          : { semestre: newSemester };
+  
+        const updatedStudent = await studentModel.findByIdAndUpdate(studentId, updateData, { new: true });
+        updatedStudents.push(updatedStudent);
+        
+      } catch (error) {
+        console.error(`Error updating student with ID ${studentId}:`, error);
+      }
+    }
+    return updatedStudents;
+  };
+
 
 const deleteFueraSistema = async () => {
     const students = await studentModel.find({ fueraSistema: true });
@@ -136,6 +164,10 @@ const deleteFueraSistema = async () => {
         await deleteImage(student.fotografia);
     });
     return studentModel.deleteMany({ fueraSistema: true });
+}
+
+const getAllStudentsDentroSistema = async () => {
+    return studentModel.find({ fueraSistema: false });
 }
 
 
@@ -334,6 +366,8 @@ const getPdfReports = async (userId: string): Promise<Buffer> => {
         findStudentsByIds,
         passwordChange,
         getPdfReports,
-        updateStudentsSemeseter,
-        deleteFueraSistema
+        updateStudentsSemester,
+        deleteFueraSistema,
+        getAllStudentsDentroSistema,
+        resetPoints
     }

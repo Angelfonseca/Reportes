@@ -50,7 +50,7 @@
 
         <!-- Botones para exportar y cerrar -->
         <div class="pdf-buttons">
-            <button @click="downloadPdf(alumnoId)">Descargar PDF</button>
+            <button class="dwnld-pdf" @click="downloadPdf(alumnoId)">Descargar PDF</button>
             <button @click="closeModal">Cerrar</button>
         </div>
     </div>
@@ -102,7 +102,6 @@ export default {
   try {
     // Llamada a la API para obtener el PDF en formato Base64
     const response = await apiService.get(`/estudiantes/pdf/${alumnoId}`);
-    console.log('Respuesta de la API:', response); // Imprime el contenido base64 completo
 
     if (!response) {
       alert('El PDF está vacío o no se recibió correctamente.');

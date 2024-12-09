@@ -3,20 +3,24 @@
     <nav class="sidebar" :class="{ 'sidebar-hidden': !showSidebar }">
       <div class="logo flex justify-center items-center">
         <img class="object-cover rounded-full h-21 w-24 mx-auto my-4" :src="userPhoto" alt="User photo">
-
         <span class="col ml-4"></span>
       </div>
       <div class="links">
-        <router-link to="/consulta" class="link">Consulta de reportes</router-link>
-        <router-link to="/reporte" class="link" v-if="user.user && user.user.isAdmin === true">Generar
-          reporte</router-link>
-        <router-link to="/subir" class="link" v-if="user.user && user.user.isAdmin === true">Subir alumnos</router-link>
-        <router-link to="/modificar" class="link" v-if="user.user && user.user.isAdmin === true">Modificar
-          Usuarios</router-link>
-
+        <router-link v-if="user.user && !user.user.nonAdmin" to="/consulta" class="link">Consulta de reportes</router-link>
+        
+        <!-- Desplegable para enlaces de administración -->
+        <details class="admin-dropdown" v-if="user.user && user.user.isAdmin === true">
+          <summary class="link">Administración</summary>
+          <router-link class="sub_link"  to="/reporte">Generar reporte</router-link>
+          <router-link class="sub_link" to="/subir" >Subir alumnos</router-link>
+          <router-link class="sub_link" to="/modificar" >Modificar Usuarios</router-link>
+          <router-link class="sub_link" to="/maestros">Añadir docentes</router-link>
+          <router-link class="sub_link" to="/cambios-masivos">Cambios Masivos</router-link>
+        </details>
+        <router-link class="link" v-if="user.user && user.user.nonAdmin" to="/reporte">Generar reporte</router-link>
         <!-- Enlace para configurar el usuario -->
         <router-link to="/configure" class="link config-user">
-          Configurar usuario
+          Usuario
         </router-link>
 
         <button @click="toggleSidebar" class="toggle-button">
@@ -63,11 +67,9 @@ function logout() {
 
 onMounted(() => {
   if (user) {
-    console.log("User loaded:", user);
     if (user.user.fotografia) {
       const path = user.user.fotografia;
-      userPhoto.value = path; // Asegúrate de que `path` sea la URL correcta
-      console.log("User photo URL:", userPhoto.value);
+      userPhoto.value = path; 
     } else {
       console.log("No user photo found.");
     }
@@ -81,13 +83,40 @@ onMounted(() => {
 <style>
 @import '../assets/componentscss/Navbar.css';
 
-/* Estilo para el enlace de configuración del usuario */
 .config-user {
-  font-weight: bold;
-  /* O cualquier estilo que desees */
-  color: #4CAF50;
-  /* Color verde, cambia según tu preferencia */
-  margin-top: 10px;
-  /* Espaciado opcional */
+  margin-top: 20px;
 }
+
+
+.admin-dropdown summary {
+  cursor: pointer;
+
+  margin-top: 10px;
+}
+
+.admin-dropdown[open] summary {
+  color: #4CAF50; 
+}
+
+.sub_link {
+  margin-left: 20px;
+  display: block;
+  padding: 5px 0;
+  position: relative;
+  color: #e2dddd;
+  text-decoration: none;
+}
+
+.sub_link::before {
+  content: '>';
+  position: absolute;
+  left: -15px;
+  color: #4CAF50;
+}
+
+.sub_link:hover {
+  color: #4CAF50;
+  text-decoration: underline;
+}
+
 </style>
