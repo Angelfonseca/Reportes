@@ -55,6 +55,7 @@ import apiService from '../services/api.service';
 import BaseLayout from '../layout/BaseLayout.vue';
 import { validateJWT, adminandnonAdmin } from '../services/auth.pages';
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 const searchQuery = ref('');
 const estudiantesFiltrados = ref([]);
 const nombreEstudiante = ref('');
@@ -64,6 +65,7 @@ validateJWT();
 adminandnonAdmin()
 let studentId = '';
 const categoria = ref('Reporte');
+const router = useRouter();
 const user = JSON.parse(localStorage.getItem('user'));
 const toast = useToast();
 const puntos = ref(0);
@@ -135,14 +137,14 @@ const generarReporte = () => {
       console.error('Error al generar reporte:', error);
       toast.error('Error al generar reporte');
     });
-  onMounted(() => {
-    if (!user.user || !user.user.cambioContrasena) {
-      console.log(user.user)
-      $toast.error('Es necesario cambiar la contraseña.');
-      router.push('/configure');
-    }
-  });
 };
+
+onMounted(() => {
+  if (!user.user || !user.user.cambioContrasena) {
+    toast.error('Es necesario cambiar la contraseña.');
+    router.push('/configure');
+  }
+});
 </script>
 
 
