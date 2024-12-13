@@ -6,7 +6,7 @@ import tokenforTest from "../utils/jwt.util";
 
 const router = Router();
 
-router.post("/", studentsController.createStudent);
+router.post("/", ensureAuth,studentsController.createStudent);
 router.get("/", ensureAuth,studentsController.getStudents);
 router.get("/get/:id", ensureAuth,studentsController.getStudentById);
 router.patch("/:id", ensureAuth,studentsController.patchupdateStudent);
